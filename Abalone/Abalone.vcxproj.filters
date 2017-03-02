@@ -13,5 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fichiers sources\Core">
+      <UniqueIdentifier>{a9394b0a-aa64-41d1-9c0c-266d77f200fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Core">
+      <UniqueIdentifier>{2c8978e7-8950-4e3f-8aab-d2693ffc0905}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\GUI">
+      <UniqueIdentifier>{44cc20ce-ed3f-4e33-8c5f-dcebfe0543cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\GUI">
+      <UniqueIdentifier>{09cced0c-c336-4fa5-94e0-06fb7c548205}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Gameplay">
+      <UniqueIdentifier>{ac34c8d5-8ee9-44f1-ac2f-fd71c2cbd2d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Gameplay">
+      <UniqueIdentifier>{1ca5c574-2404-46d1-9bb0-971a07b0d798}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EventManager.c">
+      <Filter>Fichiers sources\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>Fichiers sources\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.c">
+      <Filter>Fichiers sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.c">
+      <Filter>Fichiers sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="AbaloneBoard.c">
+      <Filter>Fichiers sources\Gameplay</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EventManager.h">
+      <Filter>Fichiers d%27en-tête\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Fichiers d%27en-tête\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CallbackList.h">
+      <Filter>Fichiers d%27en-tête\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Fichiers d%27en-tête\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Fichiers d%27en-tête\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="AbaloneBoard.h">
+      <Filter>Fichiers d%27en-tête\Gameplay</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
