@@ -117,6 +117,14 @@ void convertCoord(int boardLetter, int boardNumber, int * screenX, int * screenY
 
 }
 
+void screenToBoard(int screenX, int screenY, int *boardL, int *boardN)
+{
+	*boardL = (screenY - 293) / 57;
+	*boardN = (int)((screenX - (109 + abs(*boardL)*cos(60. / 180.*M_PI) * 66)) / 66);
+	*boardL *= -1;
+	*boardL += 4;
+}
+
 void setDrawableCoord(AbaloneBoard * ab)
 {
 	int i = 0, j = 0, bc = 0, wc = 0;
@@ -147,27 +155,22 @@ int handleClik(Event * e)
 
 	if (evt->type == SDL_MOUSEBUTTONUP&&evt->button.clicks==SDL_BUTTON_LEFT)
 	{
-		for (i = 0;i < SIZE;i++)
+		screenToBoard(evt->button.x, evt->button.y, &x, &y);
+
+		if (x >= 0 && x < SIZE && y >= 0 && y < SIZE)
 		{
-			for (j = 0;j < SIZE;j++)
+			for (i = 0;i < x;i++)
 			{
-				if (ab->board[i][j] != NO_BALL)
+				for (j = 0;j < y;j++)
 				{
-					convertCoord(i, j, &x, &y);
-
-					//Hitbox carré, flemme
-					if (evt->button.x >= x&&evt->button.x <= x + BALL_TEXTURE_SIZE&&
-						evt->button.y >= x&&evt->button.y <= y + BALL_TEXTURE_SIZE)
-					{
-						isLeftCliked((ab->board[i][j] == BLACK) ? bc : wc, (ab->board[i][j] == BLACK) ? BLACK : WHITE);
-					}
-
 					if (ab->board[i][j] == BLACK)
 						bc++;
 					else
 						wc++;
 				}
 			}
+
+			isLeftCliked((ab->board[x][y] == BLACK) ? bc : wc, (ab->board[x][y] == BLACK) ? BLACK : WHITE);
 		}
 	}
 	else if (evt->type == SDL_MOUSEBUTTONUP&&evt->button.clicks==SDL_BUTTON_RIGHT)

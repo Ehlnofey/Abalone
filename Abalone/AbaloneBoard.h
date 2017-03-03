@@ -8,7 +8,7 @@
 #define NO_BALL 0
 #define WHITE 1
 #define SIZE 9
-#define BALL_TEXTURE_SIZE 58
+#define BALL_TEXTURE_SIZE 54
 
 typedef struct AbaloneBoard
 {

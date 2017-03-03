@@ -14,11 +14,11 @@ int main(int argc, char * argv[])
 	AbaloneBoard *ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);
 
 	setDefaultConf(ab);
-	setDrawableCoord(ab);
 
 	while (mainEvent(&myEM) == 1)
 	{
 		mainWindow(&myEM,myWindow);
+		setDrawableCoord(ab);
 		drawBoard(ab, &myEM);
 	}
 
