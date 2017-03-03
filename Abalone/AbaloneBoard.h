@@ -5,8 +5,10 @@
 #include "EventManager.h"
 
 #define BLACK -1
+#define SELECTED_BLACK -2
 #define NO_BALL 0
 #define WHITE 1
+#define SELECTED_WHITE 2
 #define SIZE 9
 #define BALL_TEXTURE_SIZE 54
 
@@ -14,8 +16,6 @@ typedef struct AbaloneBoard
 {
 	int board[SIZE][SIZE];
 	Drawable *black,*white, boardDrawable;
-	int *blackIsSelected, *whiteIsSelected;
-	int blackBallCount, witheBallCount;
 }AbaloneBoard;
 
 AbaloneBoard* newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount);
