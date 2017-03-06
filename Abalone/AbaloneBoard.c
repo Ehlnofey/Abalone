@@ -11,6 +11,8 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 	ab->black = malloc(sizeof(Drawable)*blackBallCount);
 	ab->white = malloc(sizeof(Drawable)*whiteBallCount);
+	ab->turn = BLACK;
+	ab->selectedBalls = 0;
 
 	for (i = 0;i < SIZE;i++)
 		for (j = 0;j < SIZE;j++)
@@ -161,7 +163,7 @@ int handleClik(Event * e)
 		if (x >= 0 && x < SIZE && y >= 0 && y < SIZE)
 			isLeftCliked(x,y);
 	}
-	else if (evt->type == SDL_MOUSEBUTTONUP&&evt->button.button ==SDL_BUTTON_RIGHT)
+	else if (evt->type == SDL_MOUSEBUTTONUP && evt->button.button == SDL_BUTTON_RIGHT)
 	{
 
 	}
@@ -173,14 +175,64 @@ void isLeftCliked(int x, int y)
 {
 	AbaloneBoard *ab = getAbaloneBoard(NULL);
 
-	if (ab->board[x][y] == BLACK)
-		ab->board[x][y] = SELECTED_BLACK;
-	else if (ab->board[x][y] == SELECTED_BLACK)
-		ab->board[x][y] = BLACK;
-	else if (ab->board[x][y] == WHITE)
-		ab->board[x][y] = SELECTED_WHITE;
-	else if (ab->board[x][y] == SELECTED_WHITE)
-		ab->board[x][y] = WHITE;
+	int selectedColor,color;
+	if (ab->turn == BLACK)
+	{
+		selectedColor = SELECTED_BLACK;
+		color = BLACK;
+	}
+	else  if (ab->turn == WHITE)
+	{
+		selectedColor = SELECTED_WHITE;
+		color = WHITE;
+	}
+
+	if (ab->board[x][y] == selectedColor)
+	{
+		ab->board[x][y] = color;
+		ab->selectedBalls--;
+	}
+	else
+	{
+		int allow = (ab->selectedBalls == 0) ? 1 : 0;
+
+		if (ab->selectedBalls == 1)
+		{
+			if (x - 1 >= 0)
+				allow = allow || (ab->board[x - 1][y] == selectedColor);
+			if (y - 1 >= 0)
+				allow = allow || (ab->board[x][y - 1] == selectedColor);
+			if (x + 1 < SIZE)
+				allow = allow || (ab->board[x + 1][y] == selectedColor);
+			if (y + 1 < SIZE)
+				allow = allow || (ab->board[x][y + 1] == selectedColor);
+			if (y - 1 >= 0 && x - 1 >= 0)
+				allow = allow || (ab->board[x - 1][y - 1] == selectedColor);
+			if (x + 1 < SIZE && y + 1 < SIZE)
+				allow = allow || (ab->board[x + 1][y + 1] == selectedColor);
+		}
+		else if (ab->selectedBalls == 2)
+		{
+			if (x - 2 >= 0)
+				allow = allow || ((ab->board[x - 1][y] == selectedColor) && (ab->board[x - 2][y] == selectedColor));
+			if (y - 2 >= 0)
+				allow = allow || ((ab->board[x][y - 1] == selectedColor) && (ab->board[x][y - 2] == selectedColor));
+			if (x + 2 < SIZE)
+				allow = allow || ((ab->board[x + 1][y] == selectedColor) && (ab->board[x + 2][y] == selectedColor));
+			if (y + 2 < SIZE)
+				allow = allow || ((ab->board[x][y + 1] == selectedColor) && (ab->board[x][y + 2] == selectedColor));
+			if (y - 2 >= 0 && x - 2 >= 0)
+				allow = allow || ((ab->board[x - 1][y - 1] == selectedColor) && (ab->board[x - 2][y - 2] == selectedColor));
+			if (x + 2 < SIZE && y + 2 < SIZE)
+				allow = allow || ((ab->board[x + 1][y + 1] == selectedColor) && (ab->board[x + 2][y + 2] == selectedColor));
+		}
+
+		if (allow)
+		{
+			ab->board[x][y] = selectedColor;
+			ab->selectedBalls++;
+		}
+	}
 }
 
 AbaloneBoard * getAbaloneBoard(AbaloneBoard * ab)

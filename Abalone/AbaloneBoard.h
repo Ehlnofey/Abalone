@@ -16,6 +16,7 @@ typedef struct AbaloneBoard
 {
 	int board[SIZE][SIZE];
 	Drawable *black,*white, boardDrawable;
+	int turn,selectedBalls;
 }AbaloneBoard;
 
 AbaloneBoard* newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount);
