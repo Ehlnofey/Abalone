@@ -1,8 +1,12 @@
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "AbaloneBoard.h"
 
 AbaloneBoard *getAbaloneBoard(AbaloneBoard *ab);
 int handleClik(Event *e);
 void isLeftCliked(int x, int y);
+void isRightCliked(int x, int y);
 
 AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount)
 {
@@ -11,6 +15,8 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 	ab->black = malloc(sizeof(Drawable)*blackBallCount);
 	ab->white = malloc(sizeof(Drawable)*whiteBallCount);
+	ab->blackBallsCount = blackBallCount;
+	ab->whiteBallsCount = whiteBallCount;
 	ab->turn = BLACK;
 	ab->selectedBalls = 0;
 
@@ -113,7 +119,7 @@ void convertCoord(int boardLetter, int boardNumber, int * screenX, int * screenY
 
 void screenToBoard(int screenX, int screenY, int *boardL, int *boardN)
 {
-	*boardL = floor((screenY - 293.) / 57.);
+	*boardL = (int)(floor((screenY - 293.) / 57.));
 	*boardN = (int)((screenX - (109 + abs(*boardL)*cos(60. / 180.*M_PI) * 66)) / 66);
 	*boardL *= -1;
 	*boardL += 4;
@@ -129,6 +135,12 @@ void setDrawableCoord(AbaloneBoard * ab)
 		{
 			if (ab->board[i][j] == BLACK || ab->board[i][j] == SELECTED_BLACK)
 			{
+				if (bc >= ab->blackBallsCount)
+				{
+					printf("Not enough black balls");
+					assert(bc < ab->blackBallsCount);
+				}
+
 				convertCoord(i, j, &ab->black[bc].dst.x, &ab->black[bc].dst.y);
 				if (ab->board[i][j] == SELECTED_BLACK)
 					ab->black[bc].tex = getTextureFromRoot("./Image/selectedBall.png");
@@ -139,6 +151,12 @@ void setDrawableCoord(AbaloneBoard * ab)
 			}
 			else if (ab->board[i][j] == WHITE || ab->board[i][j] == SELECTED_WHITE)
 			{
+				if (wc >= ab->whiteBallsCount)
+				{
+					printf("Not enough white balls");
+					assert(wc < ab->whiteBallsCount);
+				}
+
 				convertCoord(i, j, &ab->white[wc].dst.x, &ab->white[wc].dst.y);
 				if(ab->board[i][j]==SELECTED_WHITE)
 					ab->white[wc].tex = getTextureFromRoot("./Image/selectedBall.png");
@@ -148,6 +166,68 @@ void setDrawableCoord(AbaloneBoard * ab)
 			}
 		}
 	}
+}
+/*Penser a mettre à jour dans le board ab les variables
+**	- turn
+**	- x[], y[]
+**  - selectedBalls
+*/
+int canMoveDir(Direction dir, AbaloneBoard *ab)
+{
+	int x, y, allow = 0;
+
+	if (ab->selectedBalls == 0)
+		return 0;
+
+	switch (dir)
+	{
+	case NORTH_EAST:
+		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE - 1 && ab->y[0] >= 0 && ab->y[0] < SIZE - 1)
+			return ab->board[ab->x[0]+1][ab->y[0]+1] == NO_BALL;
+		else if (ab->selectedBalls == 2 && abs(ab->x[0] - ab->x[1]) == 1 && abs(ab->y[0] - ab->y[1]) == 1)
+		{
+			x = max(ab->x[0], ab->x[1]);
+			y = max(ab->y[0], ab->y[1]);
+
+			if (x + 1 >= 0 && x + 1 < SIZE && y + 1 >= 0 && y + 1 < SIZE)
+			{
+				allow = ab->board[x + 1][y + 1] == NO_BALL;
+
+				if (x + 2 >= 0 && x + 2 < SIZE && y + 2 >= 0 && y + 2 < SIZE)
+					allow = allow || ((ab->board[x + 1][y + 1] == -ab->turn) && (ab->board[x + 2][y + 2] == NO_BALL));
+			}
+
+			return allow;
+		}
+		else
+		{
+
+		}
+		break;
+	case NORTH_WEST:
+		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE - 1 && ab->y[0] > 0 && ab->y[0] < SIZE)
+			return ab->board[ab->x[0] + 1][ab->y[0] - 1] == NO_BALL;
+		break;
+	case EAST:
+		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE && ab->y[0] >= 0 && ab->y[0] < SIZE - 1)
+			return ab->board[ab->x[0]][ab->y[0] + 1] == NO_BALL;
+		break;
+	case WEST:
+		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE && ab->y[0] > 0 && ab->y[0] < SIZE)
+			return ab->board[ab->x[0]][ab->y[0] - 1] == NO_BALL;
+		break;
+	case SOUTH_EAST:
+		if (ab->selectedBalls == 1 && ab->x[0] > 0 && ab->x[0] < SIZE && ab->y[0] >= 0 && ab->y[0] < SIZE - 1)
+			return ab->board[ab->x[0] - 1][ab->y[0] + 1] == NO_BALL;
+		break;
+	case SOUTH_WEST:
+		if (ab->selectedBalls == 1 && ab->x[0] > 0 && ab->x[0] < SIZE && ab->y[0] > 0 && ab->y[0] < SIZE)
+			return ab->board[ab->x[0] - 1][ab->y[0] - 1] == NO_BALL;
+		break;
+	default:
+		break;
+	}
+	return 0;
 }
 
 int handleClik(Event * e)
@@ -165,10 +245,130 @@ int handleClik(Event * e)
 	}
 	else if (evt->type == SDL_MOUSEBUTTONUP && evt->button.button == SDL_BUTTON_RIGHT)
 	{
+		screenToBoard(evt->button.x, evt->button.y, &x, &y);
 
+		if (x >= 0 && x < SIZE && y >= 0 && y < SIZE)
+			isRightCliked(x, y);
 	}
 
 	return 0;
+}
+
+int getOpponentBallsCount(int ox, int oy, int dx, int dy, int color)
+{
+	int c = 0;
+	AbaloneBoard *ab = getAbaloneBoard(NULL);
+
+	if (color == BLACK)
+		color = WHITE;
+	else
+		color = BLACK;
+
+	if (ab->board[ox][oy] == color)
+	{
+		c++;
+		if (ox + dx >= 0 && ox + dx < SIZE && oy + dy >= 0 && oy + dy < SIZE && ab->board[ox + dx][oy + dy] == color)
+		{
+			c++;
+			if (ox + 2 * dx >= 0 && ox + 2 * dx < SIZE && oy + 2 * dy >= 0 && oy + 2 * dy < SIZE &&ab->board[ox + 2 * dx][oy + 2 * dy] == color)
+				c++;
+		}
+	}
+
+	return c;
+}
+
+void move(AbaloneBoard *ab, int ox, int oy, int destx, int desty)
+{
+	int i = 0, j = 0;
+	int selectedColor, color, opColor;
+
+	if (ab->turn == BLACK)
+	{
+		selectedColor = SELECTED_BLACK;
+		color = BLACK;
+		opColor = WHITE;
+	}
+	else  if (ab->turn == WHITE)
+	{
+		selectedColor = SELECTED_WHITE;
+		color = WHITE;
+		opColor = BLACK;
+	}
+	for (i = 0; i < ab->selectedBalls; i++)
+		for (j = 0; j < ab->selectedBalls; j++)
+			ab->board[ab->x[i]][ab->y[j]] = color;
+
+	ab->board[ox][oy] = NO_BALL;
+	ab->board[destx][desty] = color;
+}
+
+int canMove(int x, int y)
+{
+	AbaloneBoard *ab = getAbaloneBoard(NULL);
+	int allow = 0;
+
+	if (ab->selectedBalls != 0)
+	{
+		int selectedColor, color;
+
+		if (ab->turn == BLACK)
+		{
+			selectedColor = SELECTED_BLACK;
+			color = BLACK;
+		}
+		else  if (ab->turn == WHITE)
+		{
+			selectedColor = SELECTED_WHITE;
+			color = WHITE;
+		}
+
+		if (color + ab->board[x][y] == 0)
+		{
+			//Clique sur l'autre couleur
+		}
+		else if (ab->board[x][y] == 0)
+		{
+			if (abs(ab->x[0] - x) > abs(ab->x[ab->selectedBalls - 1] - x))
+			{
+				int tmp = ab->x[0];
+				ab->x[0] = ab->x[ab->selectedBalls - 1];
+				ab->x[ab->selectedBalls - 1] = tmp;
+			}
+			if (abs(ab->y[0] - y) > abs(ab->y[ab->selectedBalls - 1] - y))
+			{
+				int tmp = ab->y[0];
+				ab->y[0] = ab->y[ab->selectedBalls - 1];
+				ab->y[ab->selectedBalls - 1] = tmp;
+			}
+
+			if (ab->selectedBalls == 1)
+				allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]);
+			else //if (ab->selectedBalls == 2)
+			{
+				if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
+					allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 1);
+				else if (ab->x[0] != ab->x[1])
+					allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 0);
+				else
+					allow = (abs(ab->x[0] - x) == 0 && abs(y - ab->y[0]) == 1);
+			}
+		}
+	}
+
+	return allow;
+}
+
+void isRightCliked(int x, int y)
+{
+	AbaloneBoard *ab = getAbaloneBoard(NULL);
+
+	if (canMove(x,y))
+	{
+		move(ab, ab->x[ab->selectedBalls-1], ab->y[ab->selectedBalls-1], x, y);
+		ab->turn = (ab->turn == WHITE) ? BLACK : WHITE;
+		ab->selectedBalls = 0;
+	}
 }
 
 void isLeftCliked(int x, int y)
@@ -189,47 +389,57 @@ void isLeftCliked(int x, int y)
 
 	if (ab->board[x][y] == selectedColor)
 	{
-		ab->board[x][y] = color;
-		ab->selectedBalls--;
-	}
-	else
-	{
-		int allow = (ab->selectedBalls == 0) ? 1 : 0;
+		int i;
+		for (i = 0; i < ab->selectedBalls; i++)
+			if (ab->x[i] == x && ab->y[i] == y)
+				break;
 
-		if (ab->selectedBalls == 1)
+		ab->selectedBalls--;
+
+		if (i < ab->selectedBalls)
 		{
-			if (x - 1 >= 0)
-				allow = allow || (ab->board[x - 1][y] == selectedColor);
-			if (y - 1 >= 0)
-				allow = allow || (ab->board[x][y - 1] == selectedColor);
-			if (x + 1 < SIZE)
-				allow = allow || (ab->board[x + 1][y] == selectedColor);
-			if (y + 1 < SIZE)
-				allow = allow || (ab->board[x][y + 1] == selectedColor);
-			if (y - 1 >= 0 && x - 1 >= 0)
-				allow = allow || (ab->board[x - 1][y - 1] == selectedColor);
-			if (x + 1 < SIZE && y + 1 < SIZE)
-				allow = allow || (ab->board[x + 1][y + 1] == selectedColor);
+			ab->x[i] = ab->x[ab->selectedBalls];
+			ab->y[i] = ab->y[ab->selectedBalls];
 		}
+
+		ab->board[x][y] = color;
+	}
+	else if (ab->selectedBalls < 3)
+	{
+		int allow = (ab->selectedBalls == 0 && ab->board[x][y] == color) ? 1 : 0;
+
+		if (ab->selectedBalls != 0)
+		{
+			if (abs(ab->x[0] - x) > abs(ab->x[ab->selectedBalls - 1] - x))
+			{
+				int tmp = ab->x[0];
+				ab->x[0] = ab->x[ab->selectedBalls - 1];
+				ab->x[ab->selectedBalls - 1] = tmp;
+			}
+			if (abs(ab->y[0] - y) > abs(ab->y[ab->selectedBalls - 1] - y))
+			{
+				int tmp = ab->y[0];
+				ab->y[0] = ab->y[ab->selectedBalls - 1];
+				ab->y[ab->selectedBalls - 1] = tmp;
+			}
+		}
+		if(ab->selectedBalls==1)
+			allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) || (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1);
 		else if (ab->selectedBalls == 2)
 		{
-			if (x - 2 >= 0)
-				allow = allow || ((ab->board[x - 1][y] == selectedColor) && (ab->board[x - 2][y] == selectedColor));
-			if (y - 2 >= 0)
-				allow = allow || ((ab->board[x][y - 1] == selectedColor) && (ab->board[x][y - 2] == selectedColor));
-			if (x + 2 < SIZE)
-				allow = allow || ((ab->board[x + 1][y] == selectedColor) && (ab->board[x + 2][y] == selectedColor));
-			if (y + 2 < SIZE)
-				allow = allow || ((ab->board[x][y + 1] == selectedColor) && (ab->board[x][y + 2] == selectedColor));
-			if (y - 2 >= 0 && x - 2 >= 0)
-				allow = allow || ((ab->board[x - 1][y - 1] == selectedColor) && (ab->board[x - 2][y - 2] == selectedColor));
-			if (x + 2 < SIZE && y + 2 < SIZE)
-				allow = allow || ((ab->board[x + 1][y + 1] == selectedColor) && (ab->board[x + 2][y + 2] == selectedColor));
+			if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
+				allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 1);
+			else if (ab->x[0] != ab->x[1])
+				allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 0);
+			else
+				allow = (abs(ab->x[0] - x) == 0 && abs(y - ab->y[0]) == 1);
 		}
 
 		if (allow)
 		{
 			ab->board[x][y] = selectedColor;
+			ab->x[ab->selectedBalls] = x;
+			ab->y[ab->selectedBalls] = y;
 			ab->selectedBalls++;
 		}
 	}
