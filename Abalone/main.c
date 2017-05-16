@@ -9,7 +9,7 @@ int main(int argc, char * argv[])
 	EventManager myEM;
 	initEventManager(&myEM);
 	BuildedWindow *myWindow;
-	myWindow = buildWindow(&myEM, 640, 800, "Test !");
+	myWindow = buildWindow(&myEM, WINDOW_HEIGHT, WINDOW_WIDTH, "Test !");
 	TextureManager *tm = newTextureManager();
 	AbaloneBoard *ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);
 

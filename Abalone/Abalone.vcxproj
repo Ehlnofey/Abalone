@@ -149,7 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AbaloneBoard.c" />
-    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Event.c" />
     <ClCompile Include="EventManager.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="TextureManager.c" />

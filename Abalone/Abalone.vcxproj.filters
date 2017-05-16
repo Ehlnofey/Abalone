@@ -39,9 +39,6 @@
     <ClCompile Include="EventManager.c">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Event.cpp">
-      <Filter>Fichiers sources\Core</Filter>
-    </ClCompile>
     <ClCompile Include="WindowManager.c">
       <Filter>Fichiers sources\GUI</Filter>
     </ClCompile>
@@ -50,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="AbaloneBoard.c">
       <Filter>Fichiers sources\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.c">
+      <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -22,7 +22,7 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 	for (i = 0;i < SIZE;i++)
 		for (j = 0;j < SIZE;j++)
-			ab->board[i][j] = NO_BALL;
+			ab->board[i][j] = OUT_ZONE;
 
 	ab->boardDrawable = getDrawable(ren, "./Image/AbaloneBoard.png", 0, 0);
 	for (i = 0;i < blackBallCount;i++)
@@ -42,19 +42,34 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 void setDefaultConf(AbaloneBoard * ab)
 {
-	int i = 0;
+	int i;
+
 	for (i = 0;i < 5;i++)
 		ab->board[0][i] = BLACK;
 	for (i = 0;i < 6;i++)
 		ab->board[1][i] = BLACK;
 	for (i = 2;i < 5;i++)
 		ab->board[2][i] = BLACK;
+	for (i = 0;i < 2;i++)
+		ab->board[2][i] = NO_BALL;
+	for (i = 5;i < 7;i++)
+		ab->board[2][i] = NO_BALL;
+	for (i = 0;i < 8;i++)
+		ab->board[3][i] = NO_BALL;
+	for (i = 0;i < 9;i++)
+		ab->board[4][i] = NO_BALL;
+	for (i = 1;i < 9;i++)
+		ab->board[5][i] = NO_BALL;
+	for (i = 2;i < 4;i++)
+		ab->board[6][i] = NO_BALL;
+	for (i = 7;i < 9;i++)
+		ab->board[6][i] = NO_BALL;
 
-	for (i = 0;i < 5;i++)
+	for (i = 4;i < 5+4;i++)
 		ab->board[8][i] = WHITE;
-	for (i = 0;i < 6;i++)
+	for (i = 3;i < 6+3;i++)
 		ab->board[7][i] = WHITE;
-	for (i = 2;i < 5;i++)
+	for (i = 2+2;i < 5+2;i++)
 		ab->board[6][i] = WHITE;
 }
 
@@ -106,6 +121,17 @@ void deleteAdaloneBoard(AbaloneBoard * ab)
 
 void convertCoord(int boardLetter, int boardNumber, int * screenX, int * screenY)
 {
+	/*boardLetter *= 66;
+	boardNumber *= 66;
+	boardNumber *= cos(30. / 180.*M_PI);
+	boardLetter += 238;
+	boardNumber += 63;
+	boardNumber = WINDOW_HEIGHT - boardNumber;
+	*screenX = boardLetter;
+	*screenY = boardNumber;*/
+
+	if (boardLetter > 4)
+		boardNumber -= boardLetter - 4;
 	boardLetter -= 4;
 	boardLetter *= -1;
 	*screenX = (int)(109+abs(boardLetter)*cos(60./180.*M_PI)*66+boardNumber*66);
@@ -113,16 +139,24 @@ void convertCoord(int boardLetter, int boardNumber, int * screenX, int * screenY
 		*screenY = 293;
 	else
 		*screenY = 293 + boardLetter * 57;
-
+		
 
 }
 
 void screenToBoard(int screenX, int screenY, int *boardL, int *boardN)
 {
-	*boardL = (int)(floor((screenY - 293.) / 57.));
+/*	screenY = WINDOW_HEIGHT - screenY;
+	screenY -= 63;
+	screenX -= 238;
+	screenY /= cos(30. / 180.*M_PI);
+	*boardL = screenX / 66;
+	*boardN = screenY / 66;*/
+	*boardL = (int)(floor((screenY - 293.) / 57.)); ////Old version
 	*boardN = (int)((screenX - (109 + abs(*boardL)*cos(60. / 180.*M_PI) * 66)) / 66);
 	*boardL *= -1;
 	*boardL += 4;
+	if (*boardL > 4)
+		*boardN += *boardL - 4;
 }
 
 void setDrawableCoord(AbaloneBoard * ab)
@@ -167,6 +201,75 @@ void setDrawableCoord(AbaloneBoard * ab)
 		}
 	}
 }
+
+void coordConv(int x[3], int y[3], int r[3], double phi[3], int size)
+{
+	int i = 0;
+	for (i = 0;i < size;i++)
+	{
+		r[i] = x[i] * x[i] + y[i] * y[i];
+		phi[i] = atan((double)(y[i]) / (double)(x[i]));
+	}
+}
+
+int isCorrectForXYAlign(int x[3], int y[3], int size)
+{
+	if (size == 1)
+		return 1;
+	if (size == 2)
+		return abs(x[0] - x[1]) == 1 && abs(y[0] - y[1]) == 1;
+	if (size == 3)
+		return (abs(x[0] - x[1]) == 2 && abs(y[0] - y[1]) == 2) || (abs(x[0] - x[2]) == 2 && abs(y[0] - y[2]) == 2)
+		|| (abs(x[2] - x[1]) == 2 && abs(y[2] - y[1]) == 2);
+	return 0;
+}
+
+int isCorrectForXAlign(int x[3], int y[3], int size)
+{
+	if (size == 1)
+		return 1;
+	if (size == 2)
+		return abs(x[0] - x[1]) == 1 && abs(y[0] - y[1]) == 0;
+	if (size == 3)
+		return (abs(x[0] - x[1]) == 2 && abs(y[0] - y[1]) == 0) || (abs(x[0] - x[2]) == 2 && abs(y[0] - y[2]) == 0)
+		|| (abs(x[2] - x[1]) == 2 && abs(y[2] - y[1]) == 0);
+	return 0;
+}
+
+void northEaster(int x1, int y1, int x2, int y2, int *fx, int *fy)
+{
+	if (x1 > x2)
+	{
+		*fx = x1;
+		*fy = y1;
+	}
+	else
+	{
+		*fx = x2;
+		*fy = y2;
+	}
+}
+void northWester(int x1, int y1, int x2, int y2, int *fx, int *fy)
+{
+
+}
+void easter(int x1, int y1, int x2, int y2, int *fx, int *fy)
+{
+
+}
+void wester(int x1, int y1, int x2, int y2, int *fx, int *fy)
+{
+
+}
+void southEaster(int x1, int y1, int x2, int y2, int *fx, int *fy)
+{
+
+}
+void southWester(int x1, int y1, int x2, int y2, int *fx, int *fy)
+{
+
+}
+
 /*Penser a mettre à jour dans le board ab les variables
 **	- turn
 **	- x[], y[]
@@ -174,7 +277,7 @@ void setDrawableCoord(AbaloneBoard * ab)
 */
 int canMoveDir(Direction dir, AbaloneBoard *ab)
 {
-	int x, y, allow = 0;
+	int x = 0, y = 0, allow = 0, i = 0;
 
 	if (ab->selectedBalls == 0)
 		return 0;
@@ -182,47 +285,58 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 	switch (dir)
 	{
 	case NORTH_EAST:
-		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE - 1 && ab->y[0] >= 0 && ab->y[0] < SIZE - 1)
-			return ab->board[ab->x[0]+1][ab->y[0]+1] == NO_BALL;
-		else if (ab->selectedBalls == 2 && abs(ab->x[0] - ab->x[1]) == 1 && abs(ab->y[0] - ab->y[1]) == 1)
+		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
 		{
-			x = max(ab->x[0], ab->x[1]);
-			y = max(ab->y[0], ab->y[1]);
+			for (i = 0;i < ab->selectedBalls;i++)
+				northEaster(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			if (x + 1 >= 0 && x + 1 < SIZE && y + 1 >= 0 && y + 1 < SIZE)
-			{
-				allow = ab->board[x + 1][y + 1] == NO_BALL;
-
-				if (x + 2 >= 0 && x + 2 < SIZE && y + 2 >= 0 && y + 2 < SIZE)
-					allow = allow || ((ab->board[x + 1][y + 1] == -ab->turn) && (ab->board[x + 2][y + 2] == NO_BALL));
-			}
-
-			return allow;
-		}
-		else
-		{
-
+			return canMove(x + 1, y + 1);
 		}
 		break;
 	case NORTH_WEST:
-		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE - 1 && ab->y[0] > 0 && ab->y[0] < SIZE)
-			return ab->board[ab->x[0] + 1][ab->y[0] - 1] == NO_BALL;
+		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
+		{
+			for (i = 0;i < ab->selectedBalls;i++)
+				northWester(x, y, ab->x[i], ab->y[i], &x, &y);
+
+			return canMove(x + 1, y - 1);
+		}
 		break;
 	case EAST:
-		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE && ab->y[0] >= 0 && ab->y[0] < SIZE - 1)
-			return ab->board[ab->x[0]][ab->y[0] + 1] == NO_BALL;
+		if (isCorrectForXAlign(ab->x, ab->y, ab->selectedBalls))
+		{
+			for (i = 0;i < ab->selectedBalls;i++)
+				easter(x, y, ab->x[i], ab->y[i], &x, &y);
+
+			return canMove(x, y + 1);
+		}
 		break;
 	case WEST:
-		if (ab->selectedBalls == 1 && ab->x[0] >= 0 && ab->x[0] < SIZE && ab->y[0] > 0 && ab->y[0] < SIZE)
-			return ab->board[ab->x[0]][ab->y[0] - 1] == NO_BALL;
+		if (isCorrectForXAlign(ab->x, ab->y, ab->selectedBalls))
+		{
+			for (i = 0;i < ab->selectedBalls;i++)
+				wester(x, y, ab->x[i], ab->y[i], &x, &y);
+
+			return canMove(x, y - 1);
+		}
 		break;
 	case SOUTH_EAST:
-		if (ab->selectedBalls == 1 && ab->x[0] > 0 && ab->x[0] < SIZE && ab->y[0] >= 0 && ab->y[0] < SIZE - 1)
-			return ab->board[ab->x[0] - 1][ab->y[0] + 1] == NO_BALL;
+		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
+		{
+			for (i = 0;i < ab->selectedBalls;i++)
+				southEaster(x, y, ab->x[i], ab->y[i], &x, &y);
+
+			return canMove(x - 1, y + 1);
+		}
 		break;
 	case SOUTH_WEST:
-		if (ab->selectedBalls == 1 && ab->x[0] > 0 && ab->x[0] < SIZE && ab->y[0] > 0 && ab->y[0] < SIZE)
-			return ab->board[ab->x[0] - 1][ab->y[0] - 1] == NO_BALL;
+		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
+		{
+			for (i = 0;i < ab->selectedBalls;i++)
+				southWester(x, y, ab->x[i], ab->y[i], &x, &y);
+
+			return canMove(x - 1, y - 1);
+		}
 		break;
 	default:
 		break;
@@ -249,6 +363,11 @@ int handleClik(Event * e)
 
 		if (x >= 0 && x < SIZE && y >= 0 && y < SIZE)
 			isRightCliked(x, y);
+	}
+	else if (evt->type == SDL_MOUSEBUTTONUP && evt->button.button == SDL_BUTTON_MIDDLE)
+	{
+		screenToBoard(evt->button.x, evt->button.y, &x, &y);
+		printf("Case %c%d cliked\n",65+x,y+1);
 	}
 
 	return 0;
@@ -296,21 +415,86 @@ void move(AbaloneBoard *ab, int ox, int oy, int destx, int desty)
 		opColor = BLACK;
 	}
 	for (i = 0; i < ab->selectedBalls; i++)
-		for (j = 0; j < ab->selectedBalls; j++)
-			ab->board[ab->x[i]][ab->y[j]] = color;
+		ab->board[ab->x[i]][ab->y[i]] = color;
 
 	ab->board[ox][oy] = NO_BALL;
+	
+	if (ab->jumpOver > 0)
+	{
+		if (destx + ab->dxj >= SIZE || desty + ab->dyj >= SIZE)
+		{
+			if (-color == BLACK)
+				ab->blackDeadBalls++;
+			else
+				ab->whiteDeadBalls++;
+		}
+		else if (ab->board[destx + ab->dxj][desty + ab->dyj] == OUT_ZONE)
+		{
+			if (-color == BLACK)
+				ab->blackDeadBalls++;
+			else
+				ab->whiteDeadBalls++;
+		}
+		else if(ab->jumpOver == 1)
+			ab->board[destx + ab->dxj][desty + ab->dyj] = -color;
+		else if (destx + 2 * ab->dxj >= SIZE || desty + 2 * ab->dyj >= SIZE)
+		{
+			if (-color == BLACK)
+				ab->blackDeadBalls++;
+			else
+				ab->whiteDeadBalls++;
+		}
+		else if (ab->board[destx + 2*ab->dxj][desty + 2*ab->dyj] == OUT_ZONE)
+		{
+			if (-color == BLACK)
+				ab->blackDeadBalls++;
+			else
+				ab->whiteDeadBalls++;
+		}
+		else
+			ab->board[destx + 2*ab->dxj][desty + 2*ab->dyj] = -color;
+	}
+
 	ab->board[destx][desty] = color;
+}
+
+int euclidianDist(int x1, int y1, int x2, int y2)
+{
+	return (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
+}
+
+void nearest(int x1, int y1, int x2, int y2, int x, int y, int *fx, int *fy, int *rx, int *ry)
+{
+	if (euclidianDist(x1, y1, x, y) < euclidianDist(x2, y2, x, y))
+	{
+		*fx = x1;
+		*fy = y1;
+		*rx = x2;
+		*ry = y2;
+	}
+	else
+	{
+		*fx = x2;
+		*fy = y2;
+		*rx = x1;
+		*ry = y1;
+	}
 }
 
 int canMove(int x, int y)
 {
 	AbaloneBoard *ab = getAbaloneBoard(NULL);
 	int allow = 0;
+	ab->jumpOver = 0;
 
 	if (ab->selectedBalls != 0)
 	{
 		int selectedColor, color;
+		int i = 0, j = 0;
+
+		for (j = 0;j < ab->selectedBalls - 1;j++)
+			for (i = 0;i < ab->selectedBalls - 1;i++)
+				nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
 
 		if (ab->turn == BLACK)
 		{
@@ -325,23 +509,36 @@ int canMove(int x, int y)
 
 		if (color + ab->board[x][y] == 0)
 		{
-			//Clique sur l'autre couleur
+			if (ab->selectedBalls == 1)
+				return 0;
+			
+			int dx = x - ab->x[0], dy = y - ab->y[0];
+
+			ab->jumpOver++;
+			ab->dxj = dx;
+			ab->dyj = dy;
+
+			if (ab->x[0] + 2*dx >= SIZE || ab->y[0] + 2*dy >= SIZE)
+				return 1;
+
+			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == NO_BALL)
+				return 1;
+			
+			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == -color && ab->selectedBalls == 3)
+			{
+				ab->jumpOver++;
+
+				if (ab->x[0] + 3*dx >= SIZE || ab->y[0] + 3*dy >= SIZE)
+					return 1;
+
+				return (ab->board[ab->x[0] + 3 * dx][ab->y[0] + 3 * dy] == NO_BALL);
+			}
+
+			ab->jumpOver = 0;
+			return 0;
 		}
 		else if (ab->board[x][y] == 0)
 		{
-			if (abs(ab->x[0] - x) > abs(ab->x[ab->selectedBalls - 1] - x))
-			{
-				int tmp = ab->x[0];
-				ab->x[0] = ab->x[ab->selectedBalls - 1];
-				ab->x[ab->selectedBalls - 1] = tmp;
-			}
-			if (abs(ab->y[0] - y) > abs(ab->y[ab->selectedBalls - 1] - y))
-			{
-				int tmp = ab->y[0];
-				ab->y[0] = ab->y[ab->selectedBalls - 1];
-				ab->y[ab->selectedBalls - 1] = tmp;
-			}
-
 			if (ab->selectedBalls == 1)
 				allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]);
 			else //if (ab->selectedBalls == 2)
@@ -403,10 +600,16 @@ void isLeftCliked(int x, int y)
 		}
 
 		ab->board[x][y] = color;
+#ifdef _DEBUG
+		if(color==BLACK)
+			printf("%c%d = BLACK\n",65+x,1+y);
+		else
+			printf("%c%d = WHITE\n", 65+x, 1+y);
+#endif
 	}
-	else if (ab->selectedBalls < 3)
+	else if (ab->selectedBalls < 3 && ab->board[x][y] == color)
 	{
-		int allow = (ab->selectedBalls == 0 && ab->board[x][y] == color) ? 1 : 0;
+		int allow = (ab->selectedBalls == 0) ? 1 : 0;
 
 		if (ab->selectedBalls != 0)
 		{
@@ -441,6 +644,12 @@ void isLeftCliked(int x, int y)
 			ab->x[ab->selectedBalls] = x;
 			ab->y[ab->selectedBalls] = y;
 			ab->selectedBalls++;
+#ifdef _DEBUG
+			if(selectedColor==SELECTED_BLACK)
+				printf("%c%d = SELECTED_BLACK\n", 65+x, 1+y);
+			else
+				printf("%c%d = SELECTED_WHITE\n", 65+x, 1+y);
+#endif
 		}
 	}
 }
