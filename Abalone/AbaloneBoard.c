@@ -5,24 +5,14 @@
 
 AbaloneBoard *getAbaloneBoard(AbaloneBoard *ab);
 int handleClik(Event *e);
-void isLeftCliked(int x, int y);
-void isRightCliked(int x, int y);
 
 AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount)
 {
-	AbaloneBoard *ab = malloc(sizeof(AbaloneBoard));
+	AbaloneBoard *ab = newTheoricalAbaloneBoard(blackBallCount, whiteBallCount);
 	int i = 0, j = 0;
 
 	ab->black = malloc(sizeof(Drawable)*blackBallCount);
 	ab->white = malloc(sizeof(Drawable)*whiteBallCount);
-	ab->blackBallsCount = blackBallCount;
-	ab->whiteBallsCount = whiteBallCount;
-	ab->turn = BLACK;
-	ab->selectedBalls = 0;
-
-	for (i = 0;i < SIZE;i++)
-		for (j = 0;j < SIZE;j++)
-			ab->board[i][j] = OUT_ZONE;
 
 	ab->boardDrawable = getDrawable(ren, "./Image/AbaloneBoard.png", 0, 0);
 	for (i = 0;i < blackBallCount;i++)
@@ -36,6 +26,23 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 	getAbaloneBoard(ab);
 
 	addCallback(handleClik, SDL_EVENT);
+
+	return ab;
+}
+
+AbaloneBoard * newTheoricalAbaloneBoard(int blackBallCount, int whiteBallCount)
+{
+	AbaloneBoard *ab = malloc(sizeof(AbaloneBoard));
+	int i = 0, j = 0;
+
+	ab->blackBallsCount = blackBallCount;
+	ab->whiteBallsCount = whiteBallCount;
+	ab->turn = BLACK;
+	ab->selectedBalls = 0;
+
+	for (i = 0;i < SIZE;i++)
+		for (j = 0;j < SIZE;j++)
+			ab->board[i][j] = OUT_ZONE;
 
 	return ab;
 }
@@ -290,7 +297,7 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 			for (i = 0;i < ab->selectedBalls;i++)
 				northEaster(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			return canMove(x + 1, y + 1);
+			return canMove(ab,x + 1, y + 1);
 		}
 		break;
 	case NORTH_WEST:
@@ -299,7 +306,7 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 			for (i = 0;i < ab->selectedBalls;i++)
 				northWester(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			return canMove(x + 1, y - 1);
+			return canMove(ab, x + 1, y - 1);
 		}
 		break;
 	case EAST:
@@ -308,7 +315,7 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 			for (i = 0;i < ab->selectedBalls;i++)
 				easter(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			return canMove(x, y + 1);
+			return canMove(ab, x, y + 1);
 		}
 		break;
 	case WEST:
@@ -317,7 +324,7 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 			for (i = 0;i < ab->selectedBalls;i++)
 				wester(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			return canMove(x, y - 1);
+			return canMove(ab, x, y - 1);
 		}
 		break;
 	case SOUTH_EAST:
@@ -326,7 +333,7 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 			for (i = 0;i < ab->selectedBalls;i++)
 				southEaster(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			return canMove(x - 1, y + 1);
+			return canMove(ab, x - 1, y + 1);
 		}
 		break;
 	case SOUTH_WEST:
@@ -335,7 +342,7 @@ int canMoveDir(Direction dir, AbaloneBoard *ab)
 			for (i = 0;i < ab->selectedBalls;i++)
 				southWester(x, y, ab->x[i], ab->y[i], &x, &y);
 
-			return canMove(x - 1, y - 1);
+			return canMove(ab, x - 1, y - 1);
 		}
 		break;
 	default:
@@ -355,14 +362,14 @@ int handleClik(Event * e)
 		screenToBoard(evt->button.x, evt->button.y, &x, &y);
 
 		if (x >= 0 && x < SIZE && y >= 0 && y < SIZE)
-			isLeftCliked(x,y);
+			isLeftCliked(ab,x,y);
 	}
 	else if (evt->type == SDL_MOUSEBUTTONUP && evt->button.button == SDL_BUTTON_RIGHT)
 	{
 		screenToBoard(evt->button.x, evt->button.y, &x, &y);
 
 		if (x >= 0 && x < SIZE && y >= 0 && y < SIZE)
-			isRightCliked(x, y);
+			isRightCliked(ab,x, y);
 	}
 	else if (evt->type == SDL_MOUSEBUTTONUP && evt->button.button == SDL_BUTTON_MIDDLE)
 	{
@@ -481,9 +488,8 @@ void nearest(int x1, int y1, int x2, int y2, int x, int y, int *fx, int *fy, int
 	}
 }
 
-int canMove(int x, int y)
+int canMove(AbaloneBoard *ab,int x, int y)
 {
-	AbaloneBoard *ab = getAbaloneBoard(NULL);
 	int allow = 0;
 	ab->jumpOver = 0;
 
@@ -556,11 +562,10 @@ int canMove(int x, int y)
 	return allow;
 }
 
-void isRightCliked(int x, int y)
+void isRightCliked(AbaloneBoard *ab,int x, int y)
 {
-	AbaloneBoard *ab = getAbaloneBoard(NULL);
 
-	if (canMove(x,y))
+	if (canMove(ab,x,y))
 	{
 		move(ab, ab->x[ab->selectedBalls-1], ab->y[ab->selectedBalls-1], x, y);
 		ab->turn = (ab->turn == WHITE) ? BLACK : WHITE;
@@ -568,10 +573,8 @@ void isRightCliked(int x, int y)
 	}
 }
 
-void isLeftCliked(int x, int y)
+void isLeftCliked(AbaloneBoard *ab, int x, int y)
 {
-	AbaloneBoard *ab = getAbaloneBoard(NULL);
-
 	int selectedColor,color;
 	if (ab->turn == BLACK)
 	{

@@ -31,6 +31,18 @@
     <Filter Include="Fichiers sources\Gameplay">
       <UniqueIdentifier>{1ca5c574-2404-46d1-9bb0-971a07b0d798}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\IA">
+      <UniqueIdentifier>{b3878ed5-eaa0-4957-b95c-344c23c4a997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\IA">
+      <UniqueIdentifier>{a79b9ae9-d122-4b46-a580-1593c427b491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\IA\BasicIA">
+      <UniqueIdentifier>{097d17e5-ad0e-49cc-9862-382ff11893ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\IA\BasicIA">
+      <UniqueIdentifier>{d444f5d3-86ff-42b0-b49b-9e7dbe4f2e03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -51,6 +63,15 @@
     <ClCompile Include="Event.c">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
+    <ClCompile Include="BasicIA.c">
+      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    </ClCompile>
+    <ClCompile Include="Tree.c">
+      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeList.c">
+      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventManager.h">
@@ -70,6 +91,15 @@
     </ClInclude>
     <ClInclude Include="AbaloneBoard.h">
       <Filter>Fichiers d%27en-tête\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicIA.h">
+      <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
+    </ClInclude>
+    <ClInclude Include="Tree.h">
+      <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeList.h">
+      <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
