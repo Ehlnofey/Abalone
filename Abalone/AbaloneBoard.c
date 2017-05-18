@@ -527,7 +527,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			if (ab->x[0] + 2*dx >= SIZE || ab->y[0] + 2*dy >= SIZE)
 				return 1;
 
-			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == NO_BALL)
+			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == NO_BALL || ab->board[ab->x[0] + 2 * dx][ab->y[0] + 2 * dy] == OUT_ZONE)
 				return 1;
 			
 			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == -color && ab->selectedBalls == 3)
@@ -537,7 +537,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 				if (ab->x[0] + 3*dx >= SIZE || ab->y[0] + 3*dy >= SIZE)
 					return 1;
 
-				return (ab->board[ab->x[0] + 3 * dx][ab->y[0] + 3 * dy] == NO_BALL);
+				return (ab->board[ab->x[0] + 3 * dx][ab->y[0] + 3 * dy] == NO_BALL) || (ab->board[ab->x[0] + 3 * dx][ab->y[0] + 3 * dy] == OUT_ZONE);
 			}
 
 			ab->jumpOver = 0;
