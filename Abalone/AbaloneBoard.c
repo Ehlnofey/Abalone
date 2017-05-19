@@ -517,8 +517,24 @@ int canMove(AbaloneBoard *ab,int x, int y)
 		{
 			if (ab->selectedBalls == 1)
 				return 0;
-			
+			double a;
+			double b;
 			int dx = x - ab->x[0], dy = y - ab->y[0];
+
+			if (ab->x[0] != ab->x[1])
+			{
+				a = (ab->y[0] - ab->y[1]) / (ab->x[0] - ab->x[1]);
+				b = ab->y[0] - a*ab->x[0];
+				if (y != a*x + b)
+					return 0;
+			}
+			else
+			{
+				a = (ab->x[0] - ab->x[1])/(ab->y[0] - ab->y[1]);
+				b = ab->x[0] - a*ab->y[0];
+				if (x != a*y + b)
+					return 0;
+			}
 
 			ab->jumpOver++;
 			ab->dxj = dx;
