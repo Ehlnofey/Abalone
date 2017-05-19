@@ -149,13 +149,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AbaloneBoard.c" />
-    <ClCompile Include="BasicIA.c" />
     <ClCompile Include="Event.c" />
     <ClCompile Include="EventManager.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="TextureManager.c" />
-    <ClCompile Include="Tree.c" />
-    <ClCompile Include="TreeList.c" />
     <ClCompile Include="WindowManager.c" />
   </ItemGroup>
   <ItemGroup>

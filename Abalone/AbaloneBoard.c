@@ -629,8 +629,13 @@ void isLeftCliked(AbaloneBoard *ab, int x, int y)
 				ab->y[ab->selectedBalls - 1] = tmp;
 			}
 		}
-		if(ab->selectedBalls==1)
-			allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) || (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1);
+		if (ab->selectedBalls == 1)
+		{
+			if (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 1)
+				allow = ab->x[0] - x == ab->y[0] - y;
+			else
+				allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1);
+		}
 		else if (ab->selectedBalls == 2)
 		{
 			if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
