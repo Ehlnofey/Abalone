@@ -43,6 +43,12 @@
     <Filter Include="Fichiers d%27en-tête\IA\BasicIA">
       <UniqueIdentifier>{d444f5d3-86ff-42b0-b49b-9e7dbe4f2e03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\IA\MinIA">
+      <UniqueIdentifier>{475fa88a-9b37-49ef-a865-12af142ea7f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\IA\MinIA">
+      <UniqueIdentifier>{38ddb669-6b35-4192-af96-d8cd3331294e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -63,14 +69,8 @@
     <ClCompile Include="Event.c">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
-    <ClCompile Include="BasicIA.c">
-      <Filter>Fichiers sources\IA\BasicIA</Filter>
-    </ClCompile>
-    <ClCompile Include="Tree.c">
-      <Filter>Fichiers sources\IA\BasicIA</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeList.c">
-      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    <ClCompile Include="minIA.c">
+      <Filter>Fichiers sources\IA\MinIA</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="TreeList.h">
       <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
+    </ClInclude>
+    <ClInclude Include="minIA.h">
+      <Filter>Fichiers d%27en-tête\IA\MinIA</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
