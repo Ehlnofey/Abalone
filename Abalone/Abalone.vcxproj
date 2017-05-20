@@ -105,6 +105,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +153,7 @@
     <ClCompile Include="Event.c" />
     <ClCompile Include="EventManager.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="minIA.c" />
     <ClCompile Include="TextureManager.c" />
     <ClCompile Include="WindowManager.c" />
   </ItemGroup>
@@ -161,6 +163,7 @@
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="CallbackList.h" />
+    <ClInclude Include="minIA.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeList.h" />
