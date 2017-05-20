@@ -502,6 +502,11 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			for (i = 0;i < ab->selectedBalls - 1;i++)
 				nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
 
+		int dx = x - ab->x[0], dy = y - ab->y[0];
+
+		if (abs(dx) > 1 || abs(dy > 1))
+			return 0;
+
 		if (ab->turn == BLACK)
 		{
 			selectedColor = SELECTED_BLACK;
@@ -519,8 +524,6 @@ int canMove(AbaloneBoard *ab,int x, int y)
 				return 0;
 			double a;
 			double b;
-			int dx = x - ab->x[0], dy = y - ab->y[0];
-
 			if (ab->x[0] != ab->x[1])
 			{
 				a = (ab->y[0] - ab->y[1]) / (ab->x[0] - ab->x[1]);
@@ -539,6 +542,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			ab->jumpOver++;
 			ab->dxj = dx;
 			ab->dyj = dy;
+
 
 			if (ab->x[0] + 2*dx >= SIZE || ab->y[0] + 2*dy >= SIZE)
 				return 1;
