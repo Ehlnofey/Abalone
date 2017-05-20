@@ -493,17 +493,23 @@ int canMove(AbaloneBoard *ab,int x, int y)
 {
 	int allow = 0;
 	ab->jumpOver = 0;
+	ab->broadSizeMove = 0;
 
 	if (ab->selectedBalls != 0)
 	{
 		int selectedColor, color;
 		int i = 0, j = 0;
+		int dx = x - ab->x[0], dy = y - ab->y[0];
+		double a;
+		double b;
+		int isAlign = 1;
 
 		for (j = 0;j < ab->selectedBalls - 1;j++)
 			for (i = 0;i < ab->selectedBalls - 1;i++)
 				nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
 
-		int dx = x - ab->x[0], dy = y - ab->y[0];
+		ab->dxj = dx;
+		ab->dyj = dy;
 
 		if (abs(dx) > 1 || abs(dy > 1))
 			return 0;
@@ -519,31 +525,30 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			color = WHITE;
 		}
 
-		if (color + ab->board[x][y] == 0)
+		if (ab->selectedBalls > 1)
 		{
-			if (ab->selectedBalls == 1)
-				return 0;
-			double a;
-			double b;
 			if (ab->x[0] != ab->x[1])
 			{
 				a = (ab->y[0] - ab->y[1]) / (ab->x[0] - ab->x[1]);
 				b = ab->y[0] - a*ab->x[0];
 				if (y != a*x + b)
-					return 0;
+					isAlign = 0;
 			}
 			else
 			{
-				a = (ab->x[0] - ab->x[1])/(ab->y[0] - ab->y[1]);
+				a = (ab->x[0] - ab->x[1]) / (ab->y[0] - ab->y[1]);
 				b = ab->x[0] - a*ab->y[0];
 				if (x != a*y + b)
-					return 0;
+					isAlign = 0;
 			}
+		}
+
+		if (color + ab->board[x][y] == 0)
+		{
+			if (ab->selectedBalls == 1 || isAlign == 0)
+				return 0;
 
 			ab->jumpOver++;
-			ab->dxj = dx;
-			ab->dyj = dy;
-
 
 			if (ab->x[0] + 2*dx >= SIZE || ab->y[0] + 2*dy >= SIZE)
 				return 1;
@@ -566,16 +571,32 @@ int canMove(AbaloneBoard *ab,int x, int y)
 		}
 		else if (ab->board[x][y] == 0)
 		{
-			if (ab->selectedBalls == 1)
-				allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]);
-			else //if (ab->selectedBalls == 2)
+			if (isAlign)
 			{
-				if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
-					allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 1);
-				else if (ab->x[0] != ab->x[1])
-					allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 0);
-				else
-					allow = (abs(ab->x[0] - x) == 0 && abs(y - ab->y[0]) == 1);
+				if (ab->selectedBalls == 1)
+					allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]);
+				else //if (ab->selectedBalls == 2)
+				{
+					if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
+						allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 1);
+					else if (ab->x[0] != ab->x[1])
+						allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 0);
+					else
+						allow = (abs(ab->x[0] - x) == 0 && abs(y - ab->y[0]) == 1);
+				}
+			}
+			else
+			{
+				int i;
+				for (i = 0; i < ab->selectedBalls; i++)
+				{
+					if (ab->x[i] + dx < 0 || ab->x[i] + dx >= SIZE || ab->y[i] + dy < 0 || ab->y[i] + dy >= SIZE)
+						return 0;
+					if (ab->board[ab->x[i] + dx][ab->y[i] + dy] != NO_BALL)
+						return 0;
+				}
+				ab->broadSizeMove = 1;
+				return 1;
 			}
 		}
 	}
@@ -588,7 +609,17 @@ void isRightCliked(AbaloneBoard *ab,int x, int y)
 
 	if (canMove(ab,x,y))
 	{
-		move(ab, ab->x[ab->selectedBalls-1], ab->y[ab->selectedBalls-1], x, y);
+		if (ab->broadSizeMove == 0)
+			move(ab, ab->x[ab->selectedBalls - 1], ab->y[ab->selectedBalls - 1], x, y);
+		else
+		{
+			int i;
+			for (i = 0; i < ab->selectedBalls; i++)
+			{
+				ab->board[ab->x[i]][ab->y[i]] = NO_BALL;
+				ab->board[ab->x[i] + ab->dxj][ab->y[i] + ab->dyj] = ab->turn;
+			}
+		}
 		ab->turn = (ab->turn == WHITE) ? BLACK : WHITE;
 		ab->selectedBalls = 0;
 

@@ -29,6 +29,7 @@ typedef struct AbaloneBoard
 	int x[3], y[3];
 	int jumpOver;
 	int dxj, dyj;
+	int broadSizeMove;
 	int blackDeadBalls, whiteDeadBalls;
 }AbaloneBoard;
 
