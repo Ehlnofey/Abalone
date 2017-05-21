@@ -370,10 +370,10 @@ void perform_move(IA* ia, Move* move) {
 				ia->board[tox][toy] = ia->turn;
 			}
 			else {
-				signed char v2 = get(ia, tox + move->mx * 2, toy + move->my * 2);
+				signed char v2 = get(ia, tox + move->mx, toy + move->my);
 
 				if (v2 == NO_BALL) {
-					ia->board[tox + move->mx * 2][tox + move->my * 2] = ia->board[tox][toy];
+					ia->board[tox + move->mx][tox + move->my] = ia->board[tox][toy];
 					ia->board[lastbx][lastby] = NO_BALL;
 					ia->board[tox][toy] = ia->turn;
 				}
@@ -385,16 +385,16 @@ void perform_move(IA* ia, Move* move) {
 					int i;
 
 					for (i = 0; i < NB_BALLS; i++) {
-						if (current[i].x == tox + move->mx * 2 && current[i].y == toy + move->my * 2) {
+						if (current[i].x == tox + move->mx && current[i].y == toy + move->my) {
 							current[i].onBoard = 0;
 						}
 					}
 				}
 				else {
-					signed char v3 = get(ia, tox + move->mx * 3, toy + move->my * 3);
+					signed char v3 = get(ia, tox + move->mx * 2, toy + move->my * 2);
 
 					if (v3 == NO_BALL) {
-						ia->board[tox + move->mx * 3][toy + move->my * 3] = ia->board[tox][toy];
+						ia->board[tox + move->mx * 2][toy + move->my * 2] = ia->board[tox][toy];
 						ia->board[lastbx][lastby] = NO_BALL;
 						ia->board[tox][toy] = ia->turn;
 					}
@@ -406,7 +406,7 @@ void perform_move(IA* ia, Move* move) {
 						int i;
 
 						for (i = 0; i < NB_BALLS; i++) {
-							if (current[i].x == tox + move->mx * 3 && current[i].y == toy + move->my * 3) {
+							if (current[i].x == tox + move->mx * 2 && current[i].y == toy + move->my * 2) {
 								current[i].onBoard = 0;
 							}
 						}
