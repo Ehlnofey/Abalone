@@ -36,7 +36,6 @@ typedef struct IA {
 	MoveNode *moves;
 	Ball whiteBalls[NB_BALLS];
 	Ball blackBalls[NB_BALLS];
-	Ball *current;
 } IA;
 
 IA* new_ia(AbaloneBoard* abalone);
@@ -59,4 +58,8 @@ int possible_broad_move(IA* ia, signed char bx, signed char by, signed char sx, 
 void add_move(IA* ia, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb);
 void free_moves(IA* ia);
 void perform_move(IA* ia, Move* move);
+
+void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed char toy, int player);
+void remove_ball(IA *ia, signed char bx, signed char by, int player);
+Ball* get_oppenent_balls(IA *ia, int player);
 #endif

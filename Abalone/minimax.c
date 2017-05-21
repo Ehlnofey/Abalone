@@ -57,13 +57,6 @@ IA* new_ia(AbaloneBoard* abalone) {
 	ia->turn = abalone->turn;
 	ia->moves = NULL;
 
-	if (ia->turn == WHITE) {
-		ia->current = ia->blackBalls;
-	}
-	else {
-		ia->current = ia->whiteBalls;
-	}
-
 	return ia;
 }
 
@@ -80,7 +73,6 @@ void free_moves(IA* ia) {
 }
 
 void free_ia(IA* ia) {
-	ia->current = NULL;
 	free_moves(ia);
 	free(ia);
 }
@@ -114,7 +106,6 @@ void copy_ia(IA* src, IA* dst) {
 	}
 
 	dst->turn = src->turn;
-	dst->current = NULL;
 	dst->moves = NULL;
 }
 
@@ -143,7 +134,6 @@ void play(AbaloneBoard* abalone) {
 			current->value->nb);
 
 		copy_ia(ia, copy);
-		copy->current = copy->whiteBalls;
 		perform_move(copy, current->value);
 		print_board(copy);
 		current = current->next;
@@ -347,14 +337,25 @@ void perform_move(IA* ia, Move* move) {
 	if (move->nb == 1) {
 		ia->board[move->bx][move->by] = NO_BALL;
 		ia->board[tox][toy] = ia->turn;
+
+		move_ball(ia, move->bx, move->by, tox, toy, ia->turn);
 	}
 	else {
 		if (!isLineMove(move->sx, move->sy, move->mx, move->my)) {
 			int i;
 
 			for (i = 0; i < move->nb; i++) {
-				ia->board[move->bx + i * move->sx][move->by + i * move->sy] = NO_BALL;
-				ia->board[move->bx + i * move->sx + move->mx][move->by + i * move->sy + move->my] = ia->turn;
+				int fx, fy, tx, ty;
+
+				fx = move->bx + i * move->sx;
+				fy = move->by + i * move->sy;
+				tx = move->bx + i * move->sx + move->mx;
+				ty = move->by + i * move->sy + move->my;
+
+				ia->board[fx][fy] = NO_BALL;
+				ia->board[tx][ty] = ia->turn;
+
+				move_ball(ia, fx, fy, tx, ty, ia->turn);
 			}
 
 			printf("broad move\n");
@@ -368,48 +369,44 @@ void perform_move(IA* ia, Move* move) {
 			if (v1 == NO_BALL) {
 				ia->board[lastbx][lastby] = NO_BALL;
 				ia->board[tox][toy] = ia->turn;
+
+				move_ball(ia, lastbx, lastby, tox, toy, ia->turn);
 			}
 			else {
 				signed char v2 = get(ia, tox + move->mx, toy + move->my);
 
 				if (v2 == NO_BALL) {
-					ia->board[tox + move->mx][tox + move->my] = ia->board[tox][toy];
+					ia->board[tox + move->mx][toy + move->my] = -ia->turn;
 					ia->board[lastbx][lastby] = NO_BALL;
 					ia->board[tox][toy] = ia->turn;
+
+					move_ball(ia, tox, toy, tox + move->mx, toy + move->my, -(ia->turn));
+					move_ball(ia, lastbx, lastby, tox, toy, ia->turn);
 				}
 				else if (v2 == OUT_ZONE) {
 					ia->board[lastbx][lastby] = NO_BALL;
 					ia->board[tox][toy] = ia->turn;
 
-					Ball* current = ia->current;
-					int i;
-
-					for (i = 0; i < NB_BALLS; i++) {
-						if (current[i].x == tox + move->mx && current[i].y == toy + move->my) {
-							current[i].onBoard = 0;
-						}
-					}
+					move_ball(ia, lastbx, lastby, tox, toy, ia->turn);
+					remove_ball(ia, tox, toy, -(ia->turn));
 				}
 				else {
 					signed char v3 = get(ia, tox + move->mx * 2, toy + move->my * 2);
 
 					if (v3 == NO_BALL) {
-						ia->board[tox + move->mx * 2][toy + move->my * 2] = ia->board[tox][toy];
+						ia->board[tox + move->mx * 2][toy + move->my * 2] = -(ia->turn);
 						ia->board[lastbx][lastby] = NO_BALL;
 						ia->board[tox][toy] = ia->turn;
+
+						move_ball(ia, tox, toy, tox + move->mx * 2, toy + move->my * 2, -(ia->turn));
+						move_ball(ia, lastbx, lastby, tox, toy, ia->turn);
 					}
 					else if (v3 == OUT_ZONE) {
 						ia->board[lastbx][lastby] = NO_BALL;
 						ia->board[tox][toy] = ia->turn;
 
-						Ball* current = ia->current;
-						int i;
-
-						for (i = 0; i < NB_BALLS; i++) {
-							if (current[i].x == tox + move->mx * 2 && current[i].y == toy + move->my * 2) {
-								current[i].onBoard = 0;
-							}
-						}
+						move_ball(ia, lastbx, lastby, tox, toy, ia->turn);
+						remove_ball(ia, tox, toy, -(ia->turn));
 					}
 					else {
 						printf("??");
@@ -417,5 +414,43 @@ void perform_move(IA* ia, Move* move) {
 				}
 			}
 		}
+	}
+}
+
+void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed char toy, int player) {
+	printf("%c %d -> %c %d (%d) moved\n", bx + 65, by + 1, tox + 65, toy + 1, player);
+
+	Ball* current = get_oppenent_balls(ia, player);
+	int i;
+
+	for (i = 0; i < NB_BALLS; i++) {
+		if (current[i].x == bx && current[i].y == by) {
+			current[i].x = tox;
+			current[i].y = toy;
+			break;
+		}
+	}
+}
+
+void remove_ball(IA *ia, signed char bx, signed char by, int player) {
+	printf("%d %d (%d) removed\n", bx + 65, by + 1, player);
+
+	Ball* current = get_oppenent_balls(ia, player);
+	int i;
+
+	for (i = 0; i < NB_BALLS; i++) {
+		if (current[i].x == bx && current[i].y == by) {
+			current[i].onBoard = 0;
+			break;
+		}
+	}
+}
+
+Ball* get_oppenent_balls(IA *ia, int player) {
+	if (player == WHITE) {
+		return ia->whiteBalls;
+	}
+	else {
+		return ia->blackBalls;
 	}
 }
