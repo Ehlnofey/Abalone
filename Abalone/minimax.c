@@ -1,6 +1,8 @@
 #include <assert.h>
 #include "minimax.h"
 
+//#define MINIMAX_DEBUG
+
 // Les 6 directions de déplacement possible
 // Avec un axe x vers le haut et y vers la droite
 signed char moveDirections[NB_MOVE_DIRECTIONS][2] = {
@@ -19,7 +21,6 @@ signed char selectionDirections[NB_SELECTION_DIRECTIONS][2] = {
 	{ 0, 1 }, // HORIZONTAL
 	{ 1, 1 }  // DIAGONAL
 };
-
 
 IA* new_ia(AbaloneBoard* abalone) {
 	IA* ia = (IA*)malloc(sizeof(IA));
@@ -73,7 +74,7 @@ void free_moves(IA* ia) {
 }
 
 void free_ia(IA* ia) {
-	free_moves(ia);
+	//free_moves(ia);
 	free(ia);
 }
 
@@ -109,37 +110,83 @@ void copy_ia(IA* src, IA* dst) {
 	dst->moves = NULL;
 }
 
-void play(AbaloneBoard* abalone) {
-	IA* ia = new_ia(abalone);
-	int i;
+int eval(IA* ia) {
+	int i, j;
+
+	j = 0;
+	Ball* ball = get_balls(ia, ia->blackBalls);
 
 	for (i = 0; i < NB_BALLS; i++) {
-		if (ia->whiteBalls[i].onBoard) {
-			selection(ia, &ia->whiteBalls[i]);
+		if (ball[i].onBoard) {
+			j++;
 		}
 	}
 
-	MoveNode* current = ia->moves;
+	return j;
+}
 
-	IA* copy = (IA*)malloc(sizeof(IA));
-	
-	while (current != NULL) {
-		printf("(%c %d:%c %d) -> %c %d (%d)\n",
-			current->value->bx + 65,
-			current->value->by + 1,
-			current->value->bx + (current->value->nb - 1) * current->value->sx + 65,
-			current->value->by + (current->value->nb - 1) * current->value->sy + 1,
-			current->value->bx + current->value->mx + 65,
-			current->value->by + current->value->my + 1,
-			current->value->nb);
+int min = 10000;
 
-		copy_ia(ia, copy);
-		perform_move(copy, current->value);
-		print_board(copy);
-		current = current->next;
+void test(IA* ia, int deep) {
+	if (deep == 0) {
+#ifdef MINIMAX_DEBUG
+		MoveNode* current = ia->moves;
+
+		while (current != NULL) {
+			printf("(%c %d:%c %d) -> %c %d (%d)\n",
+				current->value->bx + 65,
+				current->value->by + 1,
+				current->value->bx + (current->value->nb - 1) * current->value->sx + 65,
+				current->value->by + (current->value->nb - 1) * current->value->sy + 1,
+				current->value->bx + current->value->mx + 65,
+				current->value->by + current->value->my + 1,
+				current->value->nb);
+
+			print_board(ia);
+			current = current->next;	
+		}
+#endif // MINIMAX_DEBUG
+
+		int r = eval(ia);
+
+		if (r < min) {
+			min = r;
+		}
 	}
+	else {
+		IA* copy = (IA*)malloc(sizeof(IA));
+		int i;
 
-	free_ia(copy);
+		Ball* balls = get_balls(ia, ia->turn);
+		
+		for (i = 0; i < NB_BALLS; i++) {
+			if (balls[i].onBoard) {
+				selection(ia, &balls[i]);
+			}
+		}
+
+		MoveNode* current = ia->moves;
+
+		while (current != NULL) {
+			copy_ia(ia, copy);
+			perform_move(copy, current->value);
+
+			copy->turn = -(copy->turn);
+			test(copy, deep - 1);
+			current = current->next;
+		}
+
+		// TODO
+		free_moves(ia);
+	}
+}
+
+void play(AbaloneBoard* abalone) {
+	IA* ia = new_ia(abalone);
+
+	test(ia, 3);
+
+	printf("black left : %d\n", min);
 	free_ia(ia);
 }
 
@@ -358,8 +405,9 @@ void perform_move(IA* ia, Move* move) {
 				move_ball(ia, fx, fy, tx, ty, ia->turn);
 			}
 
+#ifdef MINIMAX_DEBUG
 			printf("broad move\n");
-			
+#endif // MINIMAX_DEBUG			
 		}
 		else {
 			signed char lastbx = move->bx + move->sx * (move->nb - 1);
@@ -418,9 +466,12 @@ void perform_move(IA* ia, Move* move) {
 }
 
 void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed char toy, int player) {
+#ifdef MINIMAX_DEBUG
 	printf("%c %d -> %c %d (%d) moved\n", bx + 65, by + 1, tox + 65, toy + 1, player);
+#endif // MINIMAX_DEBUG
+	
 
-	Ball* current = get_oppenent_balls(ia, player);
+	Ball* current = get_balls(ia, player);
 	int i;
 
 	for (i = 0; i < NB_BALLS; i++) {
@@ -433,9 +484,11 @@ void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed c
 }
 
 void remove_ball(IA *ia, signed char bx, signed char by, int player) {
+#ifdef MINIMAX_DEBUG
 	printf("%d %d (%d) removed\n", bx + 65, by + 1, player);
+#endif // MINIMAX_DEBUG	
 
-	Ball* current = get_oppenent_balls(ia, player);
+	Ball* current = get_balls(ia, player);
 	int i;
 
 	for (i = 0; i < NB_BALLS; i++) {
@@ -446,7 +499,7 @@ void remove_ball(IA *ia, signed char bx, signed char by, int player) {
 	}
 }
 
-Ball* get_oppenent_balls(IA *ia, int player) {
+Ball* get_balls(IA *ia, int player) {
 	if (player == WHITE) {
 		return ia->whiteBalls;
 	}

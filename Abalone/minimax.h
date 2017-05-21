@@ -61,5 +61,5 @@ void perform_move(IA* ia, Move* move);
 
 void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed char toy, int player);
 void remove_ball(IA *ia, signed char bx, signed char by, int player);
-Ball* get_oppenent_balls(IA *ia, int player);
+Ball* get_balls(IA *ia, int player);
 #endif
