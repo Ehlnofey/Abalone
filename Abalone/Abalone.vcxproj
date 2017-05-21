@@ -153,7 +153,7 @@
     <ClCompile Include="Event.c" />
     <ClCompile Include="EventManager.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="minIA.c" />
+    <ClCompile Include="minimax.c" />
     <ClCompile Include="TextureManager.c" />
     <ClCompile Include="WindowManager.c" />
   </ItemGroup>
@@ -163,7 +163,7 @@
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="CallbackList.h" />
-    <ClInclude Include="minIA.h" />
+    <ClInclude Include="minimax.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeList.h" />

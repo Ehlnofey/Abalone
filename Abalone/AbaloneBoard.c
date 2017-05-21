@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "AbaloneBoard.h"
-#include "minIA.h"
+#include "minimax.h"
 
 AbaloneBoard *getAbaloneBoard(AbaloneBoard *ab);
 int handleClik(Event *e);
@@ -624,7 +624,7 @@ void isRightCliked(AbaloneBoard *ab,int x, int y)
 		ab->selectedBalls = 0;
 
 		if (ab->turn == WHITE) {
-			min_ia_start(ab);
+			play(ab);
 		}
 	}
 }
