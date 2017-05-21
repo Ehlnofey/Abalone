@@ -46,23 +46,42 @@ IA* new_ia(AbaloneBoard* abalone) {
 		}
 	}
 
+	for (i = w; i < NB_BALLS; i++) {
+		ia->whiteBalls[i].onBoard = 0;
+	}
+
+	for (i = b; i < NB_BALLS; i++) {
+		ia->blackBalls[i].onBoard = 0;
+	}
+
 	ia->turn = abalone->turn;
 	ia->moves = NULL;
+
+	if (ia->turn == WHITE) {
+		ia->current = ia->blackBalls;
+	}
+	else {
+		ia->current = ia->whiteBalls;
+	}
 
 	return ia;
 }
 
-void free_ia(IA* ia) {
+void free_moves(IA* ia) {
 	MoveNode* current = ia->moves;
 
 	while (current != NULL) {
-		Move* temp = current->next;
+		MoveNode* temp = current->next;
 		free(current->value);
 		free(current);
 
 		current = temp;
 	}
+}
 
+void free_ia(IA* ia) {
+	ia->current = NULL;
+	free_moves(ia);
 	free(ia);
 }
 
@@ -73,6 +92,30 @@ signed char get(IA* ia, int x, int y) {
 	else {
 		return OUT_ZONE;
 	}
+}
+
+void copy_ia(IA* src, IA* dst) {
+	int i, j;
+
+	for (i = 0; i < SIZE; i++) {
+		for (j = 0; j < SIZE; j++) {
+			dst->board[i][j] = src->board[i][j];
+		}
+	}
+
+	for (i = 0; i < NB_BALLS; i++) {
+		dst->whiteBalls[i].x = src->whiteBalls[i].x;
+		dst->whiteBalls[i].y = src->whiteBalls[i].y;
+		dst->whiteBalls[i].onBoard = src->whiteBalls[i].onBoard;
+
+		dst->blackBalls[i].x = src->blackBalls[i].x;
+		dst->blackBalls[i].y = src->blackBalls[i].y;
+		dst->blackBalls[i].onBoard = src->blackBalls[i].onBoard;
+	}
+
+	dst->turn = src->turn;
+	dst->current = NULL;
+	dst->moves = NULL;
 }
 
 void play(AbaloneBoard* abalone) {
@@ -87,6 +130,8 @@ void play(AbaloneBoard* abalone) {
 
 	MoveNode* current = ia->moves;
 
+	IA* copy = (IA*)malloc(sizeof(IA));
+	
 	while (current != NULL) {
 		printf("(%c %d:%c %d) -> %c %d (%d)\n",
 			current->value->bx + 65,
@@ -97,19 +142,27 @@ void play(AbaloneBoard* abalone) {
 			current->value->by + current->value->my + 1,
 			current->value->nb);
 
+		copy_ia(ia, copy);
+		copy->current = copy->whiteBalls;
+		perform_move(copy, current->value);
+		print_board(copy);
 		current = current->next;
 	}
 
+	free_ia(copy);
 	free_ia(ia);
 }
 
 void print_board(IA* ia) {
 	int i, j;
 
-	for (i = 0; i < SIZE; i++) {
+	for (i = SIZE - 1; i >= 0; i--) {
 		for (j = 0; j < SIZE; j++) {
 			if (ia->board[i][j] == OUT_ZONE) {
 				printf("  ");
+			}
+			else if (ia->board[i][j] == WHITE) {
+				printf("2 ");
 			}
 			else {
 				printf("%d ", ia->board[i][j]);
@@ -118,6 +171,8 @@ void print_board(IA* ia) {
 
 		printf("\n");
 	}
+
+	printf("\n\n");
 }
 
 void selection(IA* ia, Ball* ball) {
@@ -180,7 +235,7 @@ int possible_line_move(IA* ia, signed char bx, signed char by, signed char mx, s
 		if (v2 == NO_BALL || v2 == OUT_ZONE) {
 			return 1;
 		}
-		else if(nb > 2) {
+		else if(nb > 2 && v2 != ia->turn) {
 			signed char v3 = get(ia, bx + mx * 3, by + my * 3);
 
 			if (v3 == NO_BALL || v3 == OUT_ZONE) {
@@ -282,5 +337,85 @@ void add_move(IA* ia, signed char bx, signed char by, signed char sx, signed cha
 		}
 
 		current->next = node;
+	}
+}
+
+void perform_move(IA* ia, Move* move) {
+	signed char tox = move->bx + move->mx;
+	signed char toy = move->by + move->my;
+	
+	if (move->nb == 1) {
+		ia->board[move->bx][move->by] = NO_BALL;
+		ia->board[tox][toy] = ia->turn;
+	}
+	else {
+		if (!isLineMove(move->sx, move->sy, move->mx, move->my)) {
+			int i;
+
+			for (i = 0; i < move->nb; i++) {
+				ia->board[move->bx + i * move->sx][move->by + i * move->sy] = NO_BALL;
+				ia->board[move->bx + i * move->sx + move->mx][move->by + i * move->sy + move->my] = ia->turn;
+			}
+
+			printf("broad move\n");
+			
+		}
+		else {
+			signed char lastbx = move->bx + move->sx * (move->nb - 1);
+			signed char lastby = move->by + move->sy * (move->nb - 1);
+			signed char v1 = get(ia, tox, toy);
+
+			if (v1 == NO_BALL) {
+				ia->board[lastbx][lastby] = NO_BALL;
+				ia->board[tox][toy] = ia->turn;
+			}
+			else {
+				signed char v2 = get(ia, tox + move->mx * 2, toy + move->my * 2);
+
+				if (v2 == NO_BALL) {
+					ia->board[tox + move->mx * 2][tox + move->my * 2] = ia->board[tox][toy];
+					ia->board[lastbx][lastby] = NO_BALL;
+					ia->board[tox][toy] = ia->turn;
+				}
+				else if (v2 == OUT_ZONE) {
+					ia->board[lastbx][lastby] = NO_BALL;
+					ia->board[tox][toy] = ia->turn;
+
+					Ball* current = ia->current;
+					int i;
+
+					for (i = 0; i < NB_BALLS; i++) {
+						if (current[i].x == tox + move->mx * 2 && current[i].y == toy + move->my * 2) {
+							current[i].onBoard = 0;
+						}
+					}
+				}
+				else {
+					signed char v3 = get(ia, tox + move->mx * 3, toy + move->my * 3);
+
+					if (v3 == NO_BALL) {
+						ia->board[tox + move->mx * 3][toy + move->my * 3] = ia->board[tox][toy];
+						ia->board[lastbx][lastby] = NO_BALL;
+						ia->board[tox][toy] = ia->turn;
+					}
+					else if (v3 == OUT_ZONE) {
+						ia->board[lastbx][lastby] = NO_BALL;
+						ia->board[tox][toy] = ia->turn;
+
+						Ball* current = ia->current;
+						int i;
+
+						for (i = 0; i < NB_BALLS; i++) {
+							if (current[i].x == tox + move->mx * 3 && current[i].y == toy + move->my * 3) {
+								current[i].onBoard = 0;
+							}
+						}
+					}
+					else {
+						printf("??");
+					}
+				}
+			}
+		}
 	}
 }

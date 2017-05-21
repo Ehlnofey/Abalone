@@ -16,6 +16,7 @@ typedef struct Move {
 	signed char mx;
 	signed char my;
 	signed char nb;
+	signed char isBroad;
 } Move;
 
 typedef struct MoveNode {
@@ -35,9 +36,11 @@ typedef struct IA {
 	MoveNode *moves;
 	Ball whiteBalls[NB_BALLS];
 	Ball blackBalls[NB_BALLS];
+	Ball *current;
 } IA;
 
 IA* new_ia(AbaloneBoard* abalone);
+void copy_ia(IA* src, IA* dst);
 void free_ia(IA* ia);
 void play(AbaloneBoard* abalone);
 void print_board(IA* ia);
@@ -54,4 +57,6 @@ int possible_line_move(IA* ia, signed char bx, signed char by, signed char mx, s
 int possible_broad_move(IA* ia, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb);
 
 void add_move(IA* ia, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb);
+void free_moves(IA* ia);
+void perform_move(IA* ia, Move* move);
 #endif
