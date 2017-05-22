@@ -14,6 +14,12 @@ int main(int argc, char * argv[])
 	myWindow = buildWindow(&myEM, WINDOW_HEIGHT, WINDOW_WIDTH, "Test !");
 	TextureManager *tm = newTextureManager();
 	AbaloneBoard *ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);
+	EvalWeights evalWeights;
+
+	evalWeights.attack = 1000;
+	evalWeights.defend = 10000;
+	evalWeights.center = 100;
+	evalWeights.grouping = 100;
 
 	setDefaultConf(ab);
 
@@ -27,7 +33,7 @@ int main(int argc, char * argv[])
 		drawBoard(ab, &myEM);
 		if (clock() - start > 100)
 		{
-			start_ia(ab,3);
+			start_ia(ab, &evalWeights, 3);
 			start = clock();
 		}
 	}

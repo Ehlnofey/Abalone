@@ -22,10 +22,10 @@ signed char selectionDirections[NB_SELECTION_DIRECTIONS][2] = {
 	{ 1, 1 }  // DIAGONAL
 };
 
-IA* new_ia(AbaloneBoard* abalone) {
+IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights) {
 	IA* ia = (IA*)malloc(sizeof(IA));
 
-	assert(ia != NULL);
+	assert(ia != NULL && evalWeights != NULL);
 
 	int i, j, w, b;
 
@@ -60,6 +60,7 @@ IA* new_ia(AbaloneBoard* abalone) {
 
 	ia->turn = abalone->turn;
 	ia->moves = NULL;
+	ia->evalWeights = evalWeights;
 
 	return ia;
 }
@@ -109,6 +110,7 @@ void copy_ia(IA* src, IA* dst) {
 		dst->blackBalls[i].onBoard = src->blackBalls[i].onBoard;
 	}
 
+	dst->evalWeights = src->evalWeights;
 	dst->turn = src->turn;
 	dst->moves = NULL;
 }
@@ -121,15 +123,21 @@ int eval(IA* ia) {
 
 	for (i = 0; i < NB_BALLS; i++) {
 		if (ball[i].onBoard) {
-			//j += 1000;
+			j -= abs(ball[i].x - 4) + abs(ball[i].y - 4) * ia->evalWeights->center;
 
-			if (ball[i].x >= 2 && ball[i].x <= 6
-				&& ball[i].y >= 2 && ball[i].y <= 6) {
-				j += 1000;
+			if (
+				get(ia, ball[i].x + 1, ball[i].y) == ia->turn
+				&& get(ia, ball[i].x - 1, ball[i].y) == ia->turn
+				&& get(ia, ball[i].x, ball[i].y + 1) == ia->turn
+				&& get(ia, ball[i].x, ball[i].y - 1) == ia->turn
+				&& get(ia, ball[i].x + 1, ball[i].y + 1) == ia->turn
+				&& get(ia, ball[i].x - 1, ball[i].y - 1) == ia->turn) {
+
+				j += ia->evalWeights->grouping;
 			}
 		}
 		else {
-			j -= 100000;
+			j -= ia->evalWeights->defend;
 		}
 	}
 
@@ -137,15 +145,10 @@ int eval(IA* ia) {
 
 	for (i = 0; i < NB_BALLS; i++) {
 		if (ball[i].onBoard) {
-			//j -= 1000;
-
-			if (ball[i].x >= 2 && ball[i].x <= 6
-				&& ball[i].y >= 2 && ball[i].y <= 6) {
-				j -= 500;
-			}
+			j += abs(ball[i].x - 4) + abs(ball[i].y - 4) * ia->evalWeights->center;
 		}
 		else {
-			j += 5000;
+			j += ia->evalWeights->attack;
 		}
 	}
 
@@ -197,7 +200,6 @@ BestMove minimax(IA* ia, int deep, int max) {
 				best.move.sx = current->value->sx;
 				best.move.sy = current->value->sy;
 				best.move.nb = current->value->nb;
-				best.move.isBroad = current->value->isBroad;
 			}
 
 			current = current->next;
@@ -210,8 +212,8 @@ BestMove minimax(IA* ia, int deep, int max) {
 	}
 }
 
-void start_ia(AbaloneBoard* abalone, int deep) {
-	IA* ia = new_ia(abalone);
+void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep) {
+	IA* ia = new_ia(abalone, evalWeight);
 
 	BestMove r = minimax(ia, deep, 0);
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
