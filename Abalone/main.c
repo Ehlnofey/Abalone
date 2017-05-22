@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "EventManager.h"
 #include "WindowManager.h"
 #include "AbaloneBoard.h"
@@ -15,11 +16,19 @@ int main(int argc, char * argv[])
 
 	setDefaultConf(ab);
 
+	clock_t start;
+	start = clock();
+
 	while (mainEvent(&myEM) == 1)
 	{
 		mainWindow(&myEM,myWindow);
 		setDrawableCoord(ab);
 		drawBoard(ab, &myEM);
+		if (clock() - start > 100)
+		{
+			play(ab);
+			start = clock();
+		}
 	}
 
 	deleteAdaloneBoard(ab);

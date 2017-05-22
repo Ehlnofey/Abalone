@@ -396,6 +396,10 @@ void nearest(int x1, int y1, int x2, int y2, int x, int y, int *fx, int *fy, int
 		*rx = x2;
 		*ry = y2;
 	}
+	else if (euclidianDist(x1, y1, x, y) == euclidianDist(x2, y2, x, y))
+	{
+
+	}
 	else
 	{
 		*fx = x2;
@@ -420,9 +424,28 @@ int canMove(AbaloneBoard *ab,int x, int y)
 		double b;
 		int isAlign = 1;
 
-		for (j = 0;j < ab->selectedBalls - 1;j++)
-			for (i = 0;i < ab->selectedBalls - 1;i++)
-				nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
+		if (ab->selectedBalls > 1)
+		{
+			if (ab->x[0] != ab->x[1])
+			{
+				a = (ab->y[0] - ab->y[1]) / (ab->x[0] - ab->x[1]);
+				b = ab->y[0] - a*ab->x[0];
+				if (y != a*x + b)
+					isAlign = 0;
+			}
+			else
+			{
+				a = (ab->x[0] - ab->x[1]) / (ab->y[0] - ab->y[1]);
+				b = ab->x[0] - a*ab->y[0];
+				if (x != a*y + b)
+					isAlign = 0;
+			}
+
+			if(isAlign)
+				for (j = 0;j < ab->selectedBalls - 1;j++)
+					for (i = 0;i < ab->selectedBalls - 1;i++)
+						nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
+		}
 
 		dx = x - ab->x[0];
 		dy = y - ab->y[0];
@@ -442,24 +465,6 @@ int canMove(AbaloneBoard *ab,int x, int y)
 		{
 			selectedColor = SELECTED_WHITE;
 			color = WHITE;
-		}
-
-		if (ab->selectedBalls > 1)
-		{
-			if (ab->x[0] != ab->x[1])
-			{
-				a = (ab->y[0] - ab->y[1]) / (ab->x[0] - ab->x[1]);
-				b = ab->y[0] - a*ab->x[0];
-				if (y != a*x + b)
-					isAlign = 0;
-			}
-			else
-			{
-				a = (ab->x[0] - ab->x[1]) / (ab->y[0] - ab->y[1]);
-				b = ab->x[0] - a*ab->y[0];
-				if (x != a*y + b)
-					isAlign = 0;
-			}
 		}
 
 		if (color + ab->board[x][y] == 0)
@@ -542,9 +547,9 @@ void isRightCliked(AbaloneBoard *ab,int x, int y)
 		ab->turn = (ab->turn == WHITE) ? BLACK : WHITE;
 		ab->selectedBalls = 0;
 
-		if (ab->turn == WHITE) {
-			play(ab);
-		}
+		//if (ab->turn == WHITE) {
+		//	play(ab);
+		//}
 	}
 }
 
