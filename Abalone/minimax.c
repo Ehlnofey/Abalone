@@ -121,15 +121,15 @@ int eval(IA* ia) {
 
 	for (i = 0; i < NB_BALLS; i++) {
 		if (ball[i].onBoard) {
-			j += 1000;
+			//j += 1000;
 
 			if (ball[i].x >= 2 && ball[i].x <= 6
 				&& ball[i].y >= 2 && ball[i].y <= 6) {
-				j += 10000;
+				j += 1000;
 			}
-			else {
-				j -= 1000;
-			}
+		}
+		else {
+			j -= 100000;
 		}
 	}
 
@@ -137,15 +137,15 @@ int eval(IA* ia) {
 
 	for (i = 0; i < NB_BALLS; i++) {
 		if (ball[i].onBoard) {
-			j -= 1000;
+			//j -= 1000;
 
 			if (ball[i].x >= 2 && ball[i].x <= 6
 				&& ball[i].y >= 2 && ball[i].y <= 6) {
-				j -= 5000;
+				j -= 500;
 			}
-			else {
-				j += 5000;
-			}
+		}
+		else {
+			j += 5000;
 		}
 	}
 
