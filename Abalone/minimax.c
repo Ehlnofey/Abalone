@@ -121,26 +121,53 @@ int eval(IA* ia) {
 
 	for (i = 0; i < NB_BALLS; i++) {
 		if (ball[i].onBoard) {
-			j++;
+			j += 1000;
+
+			if (ball[i].x >= 2 && ball[i].x <= 6
+				&& ball[i].y >= 2 && ball[i].y <= 6) {
+				j += 10000;
+			}
+			else {
+				j -= 1000;
+			}
+		}
+	}
+
+	ball = get_balls(ia, -(ia->turn));
+
+	for (i = 0; i < NB_BALLS; i++) {
+		if (ball[i].onBoard) {
+			j -= 1000;
+
+			if (ball[i].x >= 2 && ball[i].x <= 6
+				&& ball[i].y >= 2 && ball[i].y <= 6) {
+				j -= 5000;
+			}
+			else {
+				j += 5000;
+			}
 		}
 	}
 
 	return j;
 }
 
-int min = 10000;
+typedef struct bestM {
+	int score;
+	Move move;
+} bestM;
 
-void test(IA* ia, int deep) {
+bestM test(IA* ia, int deep, int max) {
 	if (deep == 0) {
-		int r;
+		bestM r;
 
-		r = eval(ia);
-
-		if (min > r) {
-			min = r;
-		}
+		r.score = eval(ia);
+		return r;
 	}
 	else {
+		bestM best;
+		best.score = (max) ? -10000000 : 10000000;
+
 		IA* copy = (IA*)malloc(sizeof(IA));
 		IA* copy2 = (IA*)malloc(sizeof(IA));
 
@@ -164,20 +191,54 @@ void test(IA* ia, int deep) {
 			copy_ia(copy, copy2);
 			perform_move(copy2, current->value);
 			copy2->turn = -(copy2->turn);
-			test(copy2, deep - 1);
+			bestM r = test(copy2, deep - 1, !max);
+
+			if (max && r.score > best.score || !max && r.score < best.score) {
+				best.score = r.score;
+				best.move.bx = current->value->bx;
+				best.move.by = current->value->by;
+				best.move.mx = current->value->mx;
+				best.move.my = current->value->my;
+				best.move.sx = current->value->sx;
+				best.move.sy = current->value->sy;
+				best.move.nb = current->value->nb;
+				best.move.isBroad = current->value->isBroad;
+			}
+
 			current = current->next;
 		}
 
 		free_ia(copy2);
 		free_ia(copy);
+
+		return best;
 	}
 }
 
 void play(AbaloneBoard* abalone) {
 	IA* ia = new_ia(abalone);
 
-	test(ia, 3);
-	printf("%d\n", min);
+	bestM r = test(ia, 3, 0);
+	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
+		r.score,
+		r.move.bx + 65,
+		r.move.by + 1,
+		r.move.bx + (r.move.nb - 1) * r.move.sx + 65,
+		r.move.by + (r.move.nb - 1) * r.move.sy + 1,
+		r.move.bx + r.move.mx + 65,
+		r.move.by + r.move.my + 1,
+		r.move.nb
+	);
+
+	int i;
+
+	for (i = 0; i < r.move.nb; i++) {
+		isLeftCliked(abalone, r.move.bx + i * r.move.sx, r.move.by + i * r.move.sy);
+	}
+
+	printf("%c %d", r.move.bx + r.move.mx + 65, r.move.by + r.move.my + 1);
+
+	isRightCliked(abalone, r.move.bx + r.move.mx, r.move.by + r.move.my);
 
 	free_ia(ia);
 }
