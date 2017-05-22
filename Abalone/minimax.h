@@ -30,6 +30,11 @@ typedef struct Ball {
 	signed char y;
 } Ball;
 
+typedef struct BestMove {
+	int score;
+	Move move;
+} BestMove;
+
 typedef struct IA {
 	signed char board[SIZE][SIZE];
 	signed char turn;
@@ -41,7 +46,8 @@ typedef struct IA {
 IA* new_ia(AbaloneBoard* abalone);
 void copy_ia(IA* src, IA* dst);
 void free_ia(IA* ia);
-void play(AbaloneBoard* abalone);
+BestMove minimax(IA* ia, int deep, int max);
+void start_ia(AbaloneBoard* abalone, int deep);
 void print_board(IA* ia);
 signed char get(IA* ia, int x, int y);
 
