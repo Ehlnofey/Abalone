@@ -152,20 +152,15 @@ int eval(IA* ia) {
 	return j;
 }
 
-typedef struct bestM {
-	int score;
-	Move move;
-} bestM;
-
-bestM test(IA* ia, int deep, int max) {
+BestMove minimax(IA* ia, int deep, int max) {
 	if (deep == 0) {
-		bestM r;
+		BestMove r;
 
 		r.score = eval(ia);
 		return r;
 	}
 	else {
-		bestM best;
+		BestMove best;
 		best.score = (max) ? -10000000 : 10000000;
 
 		IA* copy = (IA*)malloc(sizeof(IA));
@@ -191,7 +186,7 @@ bestM test(IA* ia, int deep, int max) {
 			copy_ia(copy, copy2);
 			perform_move(copy2, current->value);
 			copy2->turn = -(copy2->turn);
-			bestM r = test(copy2, deep - 1, !max);
+			BestMove r = minimax(copy2, deep - 1, !max);
 
 			if (max && r.score > best.score || !max && r.score < best.score) {
 				best.score = r.score;
@@ -215,10 +210,10 @@ bestM test(IA* ia, int deep, int max) {
 	}
 }
 
-void play(AbaloneBoard* abalone) {
+void start_ia(AbaloneBoard* abalone, int deep) {
 	IA* ia = new_ia(abalone);
 
-	bestM r = test(ia, 3, 0);
+	BestMove r = minimax(ia, deep, 0);
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
 		r.score,
 		r.move.bx + 65,
