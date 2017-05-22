@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "AbaloneBoard.h"
 #include "minimax.h"
+//#include "BasicIA.h"
 
 AbaloneBoard *getAbaloneBoard(AbaloneBoard *ab);
 int handleClik(Event *e);
@@ -46,6 +47,29 @@ AbaloneBoard * newTheoricalAbaloneBoard(int blackBallCount, int whiteBallCount)
 			ab->board[i][j] = OUT_ZONE;
 
 	return ab;
+}
+
+void copyTheoricalAbaloneBoard(AbaloneBoard * dst, AbaloneBoard * src)
+{
+	int i, j;
+	dst->blackBallsCount = src->blackBallsCount;
+	dst->whiteBallsCount = src->whiteBallsCount;
+	dst->turn = src->turn;
+	dst->selectedBalls = src->selectedBalls;
+	for (i = 0; i < 3;i++)
+		dst->x[i] = src->x[i];
+	for (i = 0; i < 3; i++)
+		dst->y[i] = src->y[i];
+	dst->jumpOver = src->jumpOver;
+	dst->dxj = src->dxj;
+	dst->dyj = src->dyj;
+	dst->broadSizeMove = src->broadSizeMove;
+	dst->blackDeadBalls = src->blackDeadBalls;
+	dst->whiteDeadBalls = src->whiteDeadBalls;
+
+	for (i = 0; i < SIZE; i++)
+		for (j = 0; j < SIZE; j++)
+			dst->board[i][j] = src->board[i][j];
 }
 
 void setDefaultConf(AbaloneBoard * ab)
@@ -244,114 +268,6 @@ int isCorrectForXAlign(int x[3], int y[3], int size)
 	return 0;
 }
 
-void northEaster(int x1, int y1, int x2, int y2, int *fx, int *fy)
-{
-	if (x1 > x2)
-	{
-		*fx = x1;
-		*fy = y1;
-	}
-	else
-	{
-		*fx = x2;
-		*fy = y2;
-	}
-}
-void northWester(int x1, int y1, int x2, int y2, int *fx, int *fy)
-{
-
-}
-void easter(int x1, int y1, int x2, int y2, int *fx, int *fy)
-{
-
-}
-void wester(int x1, int y1, int x2, int y2, int *fx, int *fy)
-{
-
-}
-void southEaster(int x1, int y1, int x2, int y2, int *fx, int *fy)
-{
-
-}
-void southWester(int x1, int y1, int x2, int y2, int *fx, int *fy)
-{
-
-}
-
-/*Penser a mettre à jour dans le board ab les variables
-**	- turn
-**	- x[], y[]
-**  - selectedBalls
-*/
-int canMoveDir(Direction dir, AbaloneBoard *ab)
-{
-	int x = 0, y = 0, allow = 0, i = 0;
-
-	if (ab->selectedBalls == 0)
-		return 0;
-
-	switch (dir)
-	{
-	case NORTH_EAST:
-		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
-		{
-			for (i = 0;i < ab->selectedBalls;i++)
-				northEaster(x, y, ab->x[i], ab->y[i], &x, &y);
-
-			return canMove(ab,x + 1, y + 1);
-		}
-		break;
-	case NORTH_WEST:
-		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
-		{
-			for (i = 0;i < ab->selectedBalls;i++)
-				northWester(x, y, ab->x[i], ab->y[i], &x, &y);
-
-			return canMove(ab, x + 1, y - 1);
-		}
-		break;
-	case EAST:
-		if (isCorrectForXAlign(ab->x, ab->y, ab->selectedBalls))
-		{
-			for (i = 0;i < ab->selectedBalls;i++)
-				easter(x, y, ab->x[i], ab->y[i], &x, &y);
-
-			return canMove(ab, x, y + 1);
-		}
-		break;
-	case WEST:
-		if (isCorrectForXAlign(ab->x, ab->y, ab->selectedBalls))
-		{
-			for (i = 0;i < ab->selectedBalls;i++)
-				wester(x, y, ab->x[i], ab->y[i], &x, &y);
-
-			return canMove(ab, x, y - 1);
-		}
-		break;
-	case SOUTH_EAST:
-		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
-		{
-			for (i = 0;i < ab->selectedBalls;i++)
-				southEaster(x, y, ab->x[i], ab->y[i], &x, &y);
-
-			return canMove(ab, x - 1, y + 1);
-		}
-		break;
-	case SOUTH_WEST:
-		if (isCorrectForXYAlign(ab->x, ab->y, ab->selectedBalls))
-		{
-			for (i = 0;i < ab->selectedBalls;i++)
-				southWester(x, y, ab->x[i], ab->y[i], &x, &y);
-
-			return canMove(ab, x - 1, y - 1);
-		}
-		break;
-	default:
-		break;
-	}
-	return 0;
-}
-
 int handleClik(Event * e)
 {
 	int i = 0, j = 0, x = 0, y = 0, wc = 0, bc = 0;
@@ -499,7 +415,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 	{
 		int selectedColor, color;
 		int i = 0, j = 0;
-		int dx = x - ab->x[0], dy = y - ab->y[0];
+		int dx, dy;
 		double a;
 		double b;
 		int isAlign = 1;
@@ -507,6 +423,9 @@ int canMove(AbaloneBoard *ab,int x, int y)
 		for (j = 0;j < ab->selectedBalls - 1;j++)
 			for (i = 0;i < ab->selectedBalls - 1;i++)
 				nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
+
+		dx = x - ab->x[0];
+		dy = y - ab->y[0];
 
 		ab->dxj = dx;
 		ab->dyj = dy;

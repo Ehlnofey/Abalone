@@ -35,11 +35,12 @@ typedef struct AbaloneBoard
 
 AbaloneBoard* newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount);
 AbaloneBoard* newTheoricalAbaloneBoard(int blackBallCount, int whiteBallCount);
-void copy(AbaloneBoard *dst, AbaloneBoard *src);
+void copyTheoricalAbaloneBoard(AbaloneBoard *dst, AbaloneBoard *src);
 void setDefaultConf(AbaloneBoard *ab);
 void drawBoard(AbaloneBoard *ab, EventManager *em);
 void setConf(AbaloneBoard * ab,int board[9][9]);
 void deleteAdaloneBoard(AbaloneBoard *ab);
+void deleteTheoricalAbaloneBoard(AbaloneBoard *ab);
 void convertCoord(int boardLetter, int boardNumber, int *screenX, int *screenY);
 void setDrawableCoord(AbaloneBoard *ab);
 int canMoveDir(Direction dir, AbaloneBoard *ab);

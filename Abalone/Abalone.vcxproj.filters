@@ -72,6 +72,15 @@
     <ClCompile Include="minimax.c">
       <Filter>Fichiers sources\IA\MinIA</Filter>
     </ClCompile>
+    <ClCompile Include="BasicIA.c">
+      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    </ClCompile>
+    <ClCompile Include="Tree.c">
+      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeList.c">
+      <Filter>Fichiers sources\IA\BasicIA</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventManager.h">
