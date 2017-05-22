@@ -4,6 +4,7 @@
 #include "EventManager.h"
 #include "WindowManager.h"
 #include "AbaloneBoard.h"
+#include "minimax.h"
 
 int main(int argc, char * argv[])
 {
@@ -26,7 +27,7 @@ int main(int argc, char * argv[])
 		drawBoard(ab, &myEM);
 		if (clock() - start > 100)
 		{
-			play(ab);
+			start_ia(ab,3);
 			start = clock();
 		}
 	}
