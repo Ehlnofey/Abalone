@@ -59,14 +59,20 @@ IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights) {
 	}
 
 	ia->turn = abalone->turn;
-	ia->moves = NULL;
 	ia->evalWeights = evalWeights;
 
 	return ia;
 }
 
-void free_moves(IA* ia) {
-	MoveNode* current = ia->moves;
+MoveNode* new_moves() {
+	MoveNode* moves = (MoveNode*)malloc(sizeof(MoveNode));
+	moves = NULL;
+
+	return moves;
+}
+
+void free_moves(MoveNode* moves) {
+	MoveNode* current = moves;
 
 	while (current != NULL) {
 		MoveNode* temp = current->next;
@@ -78,7 +84,6 @@ void free_moves(IA* ia) {
 }
 
 void free_ia(IA* ia) {
-	free_moves(ia);
 	free(ia);
 }
 
@@ -112,7 +117,6 @@ void copy_ia(IA* src, IA* dst) {
 
 	dst->evalWeights = src->evalWeights;
 	dst->turn = src->turn;
-	dst->moves = NULL;
 }
 
 int eval(IA* ia) {
@@ -155,58 +159,50 @@ int eval(IA* ia) {
 	return j;
 }
 
-BestMove minimax(IA* ia, int deep, int max) {
+BestMove* minimax(IA* ia, int deep, int max) {
 	if (deep == 0) {
-		BestMove r;
+		BestMove *r = malloc(sizeof(BestMove));
 
-		r.score = eval(ia);
+		r->score = eval(ia);
 		return r;
 	}
 	else {
-		BestMove best;
-		best.score = (max) ? -10000000 : 10000000;
+		IA* copy;
+		BestMove* best = malloc(sizeof(BestMove));
+		MoveNode* moves;
+		MoveNode* current;
 
-		IA* copy = (IA*)malloc(sizeof(IA));
-		IA* copy2 = (IA*)malloc(sizeof(IA));
+		copy = (IA*)malloc(sizeof(IA));
+		assert(copy != NULL);
 
-		assert(copy != NULL && copy2 != NULL);
-
-		copy_ia(ia, copy);
-		
-		int i;
-		Ball* currentBalls = get_balls(copy, copy->turn);
-
-		for (i = 0; i < NB_BALLS; i++) {
-			if (currentBalls[i].onBoard) {
-				selection(copy, &currentBalls[i]);
-			}
-		}
-
-		MoveNode* current = copy->moves;
+		best->score = (max) ? -10000000 : 10000000;
+		moves = selection(ia);
+		current = moves;
 		
 
 		while (current != NULL) {
-			copy_ia(copy, copy2);
-			perform_move(copy2, current->value);
-			copy2->turn = -(copy2->turn);
-			BestMove r = minimax(copy2, deep - 1, !max);
+			copy_ia(ia, copy);
+			perform_move(copy, current->value);
+			copy->turn = -(copy->turn);
+			BestMove* r = minimax(copy, deep - 1, !max);
 
-			if (max && r.score > best.score || !max && r.score < best.score) {
-				best.score = r.score;
-				best.move.bx = current->value->bx;
-				best.move.by = current->value->by;
-				best.move.mx = current->value->mx;
-				best.move.my = current->value->my;
-				best.move.sx = current->value->sx;
-				best.move.sy = current->value->sy;
-				best.move.nb = current->value->nb;
+			if (max && r->score > best->score || !max && r->score < best->score) {
+				best->score = r->score;
+				best->move.bx = current->value->bx;
+				best->move.by = current->value->by;
+				best->move.mx = current->value->mx;
+				best->move.my = current->value->my;
+				best->move.sx = current->value->sx;
+				best->move.sy = current->value->sy;
+				best->move.nb = current->value->nb;
 			}
 
+			free(r);
 			current = current->next;
 		}
 
-		free_ia(copy2);
 		free_ia(copy);
+		free_moves(moves);
 
 		return best;
 	}
@@ -215,29 +211,30 @@ BestMove minimax(IA* ia, int deep, int max) {
 void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep) {
 	IA* ia = new_ia(abalone, evalWeight);
 
-	BestMove r = minimax(ia, deep, 0);
+	BestMove* r = minimax(ia, deep, 0);
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
-		r.score,
-		r.move.bx + 65,
-		r.move.by + 1,
-		r.move.bx + (r.move.nb - 1) * r.move.sx + 65,
-		r.move.by + (r.move.nb - 1) * r.move.sy + 1,
-		r.move.bx + r.move.mx + 65,
-		r.move.by + r.move.my + 1,
-		r.move.nb
+		r->score,
+		r->move.bx + 65,
+		r->move.by + 1,
+		r->move.bx + (r->move.nb - 1) * r->move.sx + 65,
+		r->move.by + (r->move.nb - 1) * r->move.sy + 1,
+		r->move.bx + r->move.mx + 65,
+		r->move.by + r->move.my + 1,
+		r->move.nb
 	);
 
 	int i;
 
-	for (i = 0; i < r.move.nb; i++) {
-		isLeftCliked(abalone, r.move.bx + i * r.move.sx, r.move.by + i * r.move.sy);
+	for (i = 0; i < r->move.nb; i++) {
+		isLeftCliked(abalone, r->move.bx + i * r->move.sx, r->move.by + i * r->move.sy);
 	}
 
-	printf("%c %d", r.move.bx + r.move.mx + 65, r.move.by + r.move.my + 1);
+	printf("%c %d", r->move.bx + r->move.mx + 65, r->move.by + r->move.my + 1);
 
-	isRightCliked(abalone, r.move.bx + r.move.mx, r.move.by + r.move.my);
+	isRightCliked(abalone, r->move.bx + r->move.mx, r->move.by + r->move.my);
 
 	free_ia(ia);
+	free(r);
 }
 
 void print_board(IA* ia) {
@@ -262,26 +259,37 @@ void print_board(IA* ia) {
 	printf("\n\n");
 }
 
-void selection(IA* ia, Ball* ball) {
-	int i, j;
+MoveNode* selection(IA* ia) {
+	int i;
 
-	// UNE BOULE
-	append_mono_ball_move(ia, ball->x, ball->y);
+	Ball* currentBalls = get_balls(ia, ia->turn);
+	MoveNode* moves = new_moves();
 
-	// DEUX ET TROIS BOULES
-	for (i = 0; i < NB_SELECTION_DIRECTIONS; i++) {
-		for (j = 1; j < 3; j++) {
-			signed char v = get(ia, ball->x + selectionDirections[i][0] * j, ball->y + selectionDirections[i][1] * j);
+	for (i = 0; i < NB_BALLS; i++) {
+		if (currentBalls[i].onBoard) {
+			int j, k;
 
-			if (v == ia->turn) {
-				append_possible_move(ia, ball->x, ball->y, selectionDirections[i][0], selectionDirections[i][1], j + 1);
-			}
-			// Contigu
-			else {
-				break;
+			// UNE BOULE
+			append_mono_ball_move(ia, &moves, currentBalls[i].x, currentBalls[i].y);
+
+			// DEUX ET TROIS BOULES
+			for (j = 0; j < NB_SELECTION_DIRECTIONS; j++) {
+				for (k = 1; k < 3; k++) {
+					signed char v = get(ia, currentBalls[i].x + selectionDirections[j][0] * k, currentBalls[i].y + selectionDirections[j][1] * k);
+
+					if (v == ia->turn) {
+						append_possible_move(ia, &moves, currentBalls[i].x, currentBalls[i].y, selectionDirections[j][0], selectionDirections[j][1], k + 1);
+					}
+					// Contigu
+					else {
+						break;
+					}
+				}
 			}
 		}
 	}
+
+	return moves;
 }
 
 int isLineMove(signed char sx, signed char sy, signed char mx, signed char my) {
@@ -292,14 +300,14 @@ int isLineMove(signed char sx, signed char sy, signed char mx, signed char my) {
 	return 0;
 }
 
-void append_mono_ball_move(IA *ia, signed char sx, signed char sy) {
+void append_mono_ball_move(IA *ia, MoveNode* moves, signed char sx, signed char sy) {
 	int i;
 
 	for (i = 0; i < NB_MOVE_DIRECTIONS; i++) {
 		signed char v = get(ia, sx + moveDirections[i][0], sy + moveDirections[i][1]);
 
 		if (v == NO_BALL) {
-			add_move(ia, sx, sy, sx, sy, moveDirections[i][0], moveDirections[i][1], 1);
+			add_move(&moves, sx, sy, sx, sy, moveDirections[i][0], moveDirections[i][1], 1);
 			//printf("  %c %d -> %c %d (1)\n", sx + 65, sy + 1, sx + moveDirections[i][0] + 65, sy + moveDirections[i][1] + 1);
 		}
 	}
@@ -352,7 +360,7 @@ int possible_broad_move(IA* ia, signed char bx, signed char by, signed char sx, 
 	return can;
 }
 
-void append_possible_move(IA* ia, signed char bx, signed char by, signed char sx, signed char sy, signed char nb) {
+void append_possible_move(IA* ia, MoveNode* moves, signed char bx, signed char by, signed char sx, signed char sy, signed char nb) {
 	int i;
 
 	for (i = 0; i < NB_MOVE_DIRECTIONS; i++) {
@@ -385,21 +393,21 @@ void append_possible_move(IA* ia, signed char bx, signed char by, signed char sx
 
 			if (possible_line_move(ia, nbx, nby, mx, my, nb)) {
 				if (invS) {
-					add_move(ia, nbx, nby, -sx, -sy, mx, my, nb);
+					add_move(&moves, nbx, nby, -sx, -sy, mx, my, nb);
 				}
 				else {
-					add_move(ia, nbx, nby, sx, sy, mx, my, nb);
+					add_move(&moves, nbx, nby, sx, sy, mx, my, nb);
 				}
 			}
 		}
 		else if (possible_broad_move(ia, bx, by, sx, sy, mx, my, nb)) {
-			add_move(ia, bx, by, sx, sy, mx, my, nb);
+			add_move(&moves, bx, by, sx, sy, mx, my, nb);
 		}
 	}
 }
 
 
-void add_move(IA* ia, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb) {
+void add_move(MoveNode* moves, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb) {
 	MoveNode* node = (MoveNode*)malloc(sizeof(MoveNode));
 
 	assert(node != NULL);
@@ -417,11 +425,11 @@ void add_move(IA* ia, signed char bx, signed char by, signed char sx, signed cha
 	node->value->my = my;
 	node->value->nb = nb;
 
-	if (ia->moves == NULL) {
-		ia->moves = node;
+	if (moves == NULL) {
+		moves = node;
 	}
 	else {
-		MoveNode* current = ia->moves;
+		MoveNode* current = moves;
 
 		while (current->next != NULL) {
 			current = current->next;
