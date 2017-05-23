@@ -5,6 +5,30 @@
 #include "minimax.h"
 //#include "BasicIA.h"
 
+int defaultBoard[SIZE][SIZE] = {
+	{ BLACK, BLACK, BLACK, BLACK, BLACK, OUT_ZONE, OUT_ZONE, OUT_ZONE, OUT_ZONE },
+	{ BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, OUT_ZONE, OUT_ZONE, OUT_ZONE },
+	{ NO_BALL, NO_BALL, BLACK, BLACK, BLACK, NO_BALL, NO_BALL, OUT_ZONE, OUT_ZONE },
+	{ NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, OUT_ZONE },
+	{ NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL },
+	{ OUT_ZONE, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL },
+	{ OUT_ZONE, OUT_ZONE, NO_BALL, NO_BALL, WHITE, WHITE, WHITE, NO_BALL, NO_BALL },
+	{ OUT_ZONE, OUT_ZONE, OUT_ZONE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE },
+	{ OUT_ZONE, OUT_ZONE, OUT_ZONE, OUT_ZONE, WHITE, WHITE, WHITE, WHITE, WHITE }
+};
+
+int belgianDaisyBoard[SIZE][SIZE] = {
+	{ BLACK, BLACK, NO_BALL, WHITE, WHITE, OUT_ZONE, OUT_ZONE, OUT_ZONE, OUT_ZONE },
+	{ BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, OUT_ZONE, OUT_ZONE, OUT_ZONE },
+	{ BLACK, BLACK, NO_BALL, NO_BALL, WHITE, WHITE, NO_BALL, OUT_ZONE, OUT_ZONE },
+	{ NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, OUT_ZONE },
+	{ NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL },
+	{ OUT_ZONE, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL },
+	{ OUT_ZONE, OUT_ZONE, NO_BALL, WHITE, WHITE, NO_BALL, BLACK, BLACK, NO_BALL },
+	{ OUT_ZONE, OUT_ZONE, OUT_ZONE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK },
+	{ OUT_ZONE, OUT_ZONE, OUT_ZONE, OUT_ZONE, WHITE, WHITE, NO_BALL, BLACK, BLACK }
+};
+
 AbaloneBoard *getAbaloneBoard(AbaloneBoard *ab);
 int handleClik(Event *e);
 
@@ -85,35 +109,13 @@ void copyTheoricalAbaloneBoard(AbaloneBoard * dst, AbaloneBoard * src)
 
 void setDefaultConf(AbaloneBoard * ab)
 {
-	int i;
+	int i, j;
 
-	for (i = 0;i < 5;i++)
-		ab->board[0][i] = BLACK;
-	for (i = 0;i < 6;i++)
-		ab->board[1][i] = BLACK;
-	for (i = 2;i < 5;i++)
-		ab->board[2][i] = BLACK;
-	for (i = 0;i < 2;i++)
-		ab->board[2][i] = NO_BALL;
-	for (i = 5;i < 7;i++)
-		ab->board[2][i] = NO_BALL;
-	for (i = 0;i < 8;i++)
-		ab->board[3][i] = NO_BALL;
-	for (i = 0;i < 9;i++)
-		ab->board[4][i] = NO_BALL;
-	for (i = 1;i < 9;i++)
-		ab->board[5][i] = NO_BALL;
-	for (i = 2;i < 4;i++)
-		ab->board[6][i] = NO_BALL;
-	for (i = 7;i < 9;i++)
-		ab->board[6][i] = NO_BALL;
-
-	for (i = 4;i < 5+4;i++)
-		ab->board[8][i] = WHITE;
-	for (i = 3;i < 6+3;i++)
-		ab->board[7][i] = WHITE;
-	for (i = 2+2;i < 5+2;i++)
-		ab->board[6][i] = WHITE;
+	for (i = 0; i < SIZE; i++) {
+		for (j = 0; j < SIZE; j++) {
+			ab->board[i][j] = belgianDaisyBoard[i][j];
+		}
+	}
 }
 
 void drawBoard(AbaloneBoard * ab, EventManager * em)
