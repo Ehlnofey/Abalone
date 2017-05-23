@@ -6,20 +6,40 @@
 #include "AbaloneBoard.h"
 #include "minimax.h"
 
+int iaPlay = 1;
+
+int handle_EVENT(Event *e)
+{
+	SDL_Event *evt = (SDL_Event*)(e->data);
+
+	if (evt->type == SDL_KEYDOWN)
+		if (evt->key.keysym.sym == (SDL_Keycode)SDLK_p)
+			iaPlay = 0;
+}
+
 int main(int argc, char * argv[])
 {
 	EventManager myEM;
-	initEventManager(&myEM);
 	BuildedWindow *myWindow;
+	TextureManager *tm;
+	AbaloneBoard *ab;
+	EvalWeights evalWeightsD, evalWeightsA;
+	
+	initEventManager(&myEM);
+	addCallback(&handle_EVENT, SDL_EVENT);
 	myWindow = buildWindow(&myEM, WINDOW_HEIGHT, WINDOW_WIDTH, "Test !");
-	TextureManager *tm = newTextureManager();
-	AbaloneBoard *ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);
-	EvalWeights evalWeights;
+	tm = newTextureManager();
+	ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);
 
-	evalWeights.attack = 1000;
-	evalWeights.defend = 10000;
-	evalWeights.center = 100;
-	evalWeights.grouping = 100;
+	evalWeightsD.attack = 1000;
+	evalWeightsD.defend = 10000;
+	evalWeightsD.center = 100;
+	evalWeightsD.grouping = 100;
+
+	evalWeightsA.attack = 10000;
+	evalWeightsA.defend = 1000;
+	evalWeightsA.center = 100;
+	evalWeightsA.grouping = 100;
 
 	setDefaultConf(ab);
 
@@ -31,9 +51,12 @@ int main(int argc, char * argv[])
 		mainWindow(&myEM,myWindow);
 		setDrawableCoord(ab);
 		drawBoard(ab, &myEM);
-		if (clock() - start > 100)
+		if (clock() - start > 100 && iaPlay)
 		{
-			start_ia(ab, &evalWeights, 4);
+			if(ab->turn==BLACK)
+				start_ia(ab, &evalWeightsD, 3);
+			else
+				start_ia(ab, &evalWeightsA, 3);
 			start = clock();
 		}
 	}
