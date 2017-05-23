@@ -33,7 +33,7 @@ int main(int argc, char * argv[])
 		drawBoard(ab, &myEM);
 		if (clock() - start > 100)
 		{
-			start_ia(ab, &evalWeights, 3);
+			start_ia(ab, &evalWeights, 4);
 			start = clock();
 		}
 	}

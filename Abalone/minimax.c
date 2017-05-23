@@ -66,7 +66,6 @@ IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights) {
 
 MoveNode* new_moves() {
 	MoveNode* moves = (MoveNode*)malloc(sizeof(MoveNode));
-	moves = NULL;
 
 	return moves;
 }
@@ -263,7 +262,7 @@ MoveNode* selection(IA* ia) {
 	int i;
 
 	Ball* currentBalls = get_balls(ia, ia->turn);
-	MoveNode* moves = new_moves();
+	MoveNode* moves = NULL;
 
 	for (i = 0; i < NB_BALLS; i++) {
 		if (currentBalls[i].onBoard) {
