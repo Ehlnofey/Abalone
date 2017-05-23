@@ -81,6 +81,9 @@
     <ClCompile Include="TreeList.c">
       <Filter>Fichiers sources\IA\BasicIA</Filter>
     </ClCompile>
+    <ClCompile Include="MinimaxThreaded.c">
+      <Filter>Fichiers sources\IA\MinIA</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventManager.h">
@@ -111,6 +114,9 @@
       <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
     </ClInclude>
     <ClInclude Include="minimax.h">
+      <Filter>Fichiers d%27en-tête\IA\MinIA</Filter>
+    </ClInclude>
+    <ClInclude Include="MinimaxThreaded.h">
       <Filter>Fichiers d%27en-tête\IA\MinIA</Filter>
     </ClInclude>
   </ItemGroup>

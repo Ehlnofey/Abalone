@@ -1,5 +1,8 @@
 #include <assert.h>
+#define _TIMESPEC_DEFINED
+#include <pthread.h>
 #include "minimax.h"
+#include "MinimaxThreaded.h"
 
 //#define MINIMAX_DEBUG
 
@@ -152,16 +155,17 @@ int eval(IA* ia) {
 	return j;
 }
 
-BestMove minimax(IA* ia, int deep, int max) {
-	if (deep == 0) {
-		BestMove r;
 
-		r.score = eval(ia);
+BestMove* minimaxWithThread(IA* ia, int deep, int max) {
+	if (deep == 0) {
+		BestMove *r = malloc(sizeof(BestMove));
+
+		r->score = eval(ia);
 		return r;
 	}
 	else {
-		BestMove best;
-		best.score = (max) ? -10000000 : 10000000;
+		BestMove *best = malloc(sizeof(BestMove));
+		best->score = (max) ? -10000000 : 10000000;
 
 		IA* copy = (IA*)malloc(sizeof(IA));
 		IA* copy2 = (IA*)malloc(sizeof(IA));
@@ -169,7 +173,7 @@ BestMove minimax(IA* ia, int deep, int max) {
 		assert(copy != NULL && copy2 != NULL);
 
 		copy_ia(ia, copy);
-		
+
 		int i;
 		Ball* currentBalls = get_balls(copy, copy->turn);
 
@@ -180,28 +184,56 @@ BestMove minimax(IA* ia, int deep, int max) {
 		}
 
 		MoveNode* current = copy->moves;
-		
 
+		ThreadList *threadIndex = NULL, *currentThread = NULL;
+
+#ifdef SHOW_TIME
+		clock_t start;
+		start = clock();
+#endif
 		while (current != NULL) {
 			copy_ia(copy, copy2);
 			perform_move(copy2, current->value);
 			copy2->turn = -(copy2->turn);
-			BestMove r = minimax(copy2, deep - 1, !max);
 
-			if (max && r.score > best.score || !max && r.score < best.score) {
-				best.score = r.score;
-				best.move.bx = current->value->bx;
-				best.move.by = current->value->by;
-				best.move.mx = current->value->mx;
-				best.move.my = current->value->my;
-				best.move.sx = current->value->sx;
-				best.move.sy = current->value->sy;
-				best.move.nb = current->value->nb;
-				best.move.isBroad = current->value->isBroad;
+			if (threadIndex == NULL)
+			{
+				threadIndex = newThreadList();
+				currentThread = threadIndex;
 			}
+
+			currentThread->next = newThreadList();
+			currentThread = currentThread->next;
+			currentThread->value = current->value;
+
+			pthread_create(&currentThread->id,NULL,minimaxthreaded,newMinimaxThreadStruct(copy2,deep-1,!max));
+
+			//BestMove r = minimax(copy2, deep - 1, !max);
 
 			current = current->next;
 		}
+#ifdef SHOW_TIME
+		printf("tmps creations threads : %dms\n", clock() - start);
+#endif
+		currentThread = threadIndex->next;
+		while (currentThread != NULL) {
+			pthread_join(currentThread->id, &currentThread->b);
+			if (max && currentThread->b->score > best->score || !max && currentThread->b->score < best->score) {
+				best->score = currentThread->b->score;
+				best->move.bx = currentThread->value->bx;
+				best->move.by = currentThread->value->by;
+				best->move.mx = currentThread->value->mx;
+				best->move.my = currentThread->value->my;
+				best->move.sx = currentThread->value->sx;
+				best->move.sy = currentThread->value->sy;
+				best->move.nb = currentThread->value->nb;
+			}
+			free(currentThread->b);
+			currentThread = currentThread->next;
+		}
+
+		deepDeleteThreadList(threadIndex);
+
 
 		free_ia(copy2);
 		free_ia(copy);
@@ -209,11 +241,81 @@ BestMove minimax(IA* ia, int deep, int max) {
 		return best;
 	}
 }
+BestMove* minimax(IA* ia, int deep, int max) {
+	if (deep == 0) {
+		BestMove *r = malloc(sizeof(BestMove));
 
+		r->score = eval(ia);
+		return r;
+	}
+	else {
+#ifdef SHOW_TIME
+		clock_t start;
+		if (deep == 3)
+			start = clock();
+#endif
+		BestMove *best = malloc(sizeof(BestMove));
+		best->score = (max) ? -10000000 : 10000000;
+
+		IA* copy = (IA*)malloc(sizeof(IA));
+		IA* copy2 = (IA*)malloc(sizeof(IA));
+
+		assert(copy != NULL && copy2 != NULL);
+
+		copy_ia(ia, copy);
+
+		int i;
+		Ball* currentBalls = get_balls(copy, copy->turn);
+
+		for (i = 0; i < NB_BALLS; i++) {
+			if (currentBalls[i].onBoard) {
+				selection(copy, &currentBalls[i]);
+			}
+		}
+
+		MoveNode* current = copy->moves;
+
+		while (current != NULL) {
+			copy_ia(copy, copy2);
+			perform_move(copy2, current->value);
+			copy2->turn = -(copy2->turn);
+			BestMove *r;
+
+			r = minimax(copy2, deep - 1, !max);
+
+			if (max && r->score > best->score || !max && r->score < best->score) {
+				best->score = r->score;
+				best->move.bx = current->value->bx;
+				best->move.by = current->value->by;
+				best->move.mx = current->value->mx;
+				best->move.my = current->value->my;
+				best->move.sx = current->value->sx;
+				best->move.sy = current->value->sy;
+				best->move.nb = current->value->nb;
+			}
+
+			free(r);
+
+			current = current->next;
+		}
+
+
+		free_ia(copy2);
+		free_ia(copy);
+
+#ifdef SHOW_TIME
+		if (deep == 3)
+			printf("tmps execution no-thread : %dms\n", clock() - start);
+#endif
+
+		return best;
+	}
+}
 void start_ia(AbaloneBoard* abalone, int deep) {
 	IA* ia = new_ia(abalone);
 
-	BestMove r = minimax(ia, deep, 0);
+	BestMove r = *minimax(ia, deep, 0);
+#ifdef _DEBUG
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
 		r.score,
 		r.move.bx + 65,
@@ -224,14 +326,17 @@ void start_ia(AbaloneBoard* abalone, int deep) {
 		r.move.by + r.move.my + 1,
 		r.move.nb
 	);
-
+#endif
 	int i;
 
 	for (i = 0; i < r.move.nb; i++) {
 		isLeftCliked(abalone, r.move.bx + i * r.move.sx, r.move.by + i * r.move.sy);
 	}
 
+#ifdef _DEBUG
 	printf("%c %d", r.move.bx + r.move.mx + 65, r.move.by + r.move.my + 1);
+#endif
+
 
 	isRightCliked(abalone, r.move.bx + r.move.mx, r.move.by + r.move.my);
 

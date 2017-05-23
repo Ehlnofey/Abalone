@@ -46,7 +46,7 @@ typedef struct IA {
 IA* new_ia(AbaloneBoard* abalone);
 void copy_ia(IA* src, IA* dst);
 void free_ia(IA* ia);
-BestMove minimax(IA* ia, int deep, int max);
+BestMove *minimax(IA* ia, int deep, int max);
 void start_ia(AbaloneBoard* abalone, int deep);
 void print_board(IA* ia);
 signed char get(IA* ia, int x, int y);
