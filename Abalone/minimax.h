@@ -16,7 +16,6 @@ typedef struct Move {
 	signed char mx;
 	signed char my;
 	signed char nb;
-	signed char isBroad;
 } Move;
 
 typedef struct MoveNode {
@@ -35,19 +34,27 @@ typedef struct BestMove {
 	Move move;
 } BestMove;
 
+typedef struct EvalWeights {
+	int attack;
+	int defend;
+	int center;
+	int grouping;
+} EvalWeights;
+
 typedef struct IA {
 	signed char board[SIZE][SIZE];
 	signed char turn;
 	MoveNode *moves;
 	Ball whiteBalls[NB_BALLS];
 	Ball blackBalls[NB_BALLS];
+	EvalWeights* evalWeights;
 } IA;
 
-IA* new_ia(AbaloneBoard* abalone);
+IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights);
 void copy_ia(IA* src, IA* dst);
 void free_ia(IA* ia);
 BestMove *minimax(IA* ia, int deep, int max);
-void start_ia(AbaloneBoard* abalone, int deep);
+void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeights, int deep);
 void print_board(IA* ia);
 signed char get(IA* ia, int x, int y);
 
