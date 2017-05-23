@@ -35,6 +35,7 @@ typedef struct AbaloneBoard
 
 AbaloneBoard* newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount);
 AbaloneBoard* newTheoricalAbaloneBoard(int blackBallCount, int whiteBallCount);
+int someoneWin(AbaloneBoard *ab);
 void copyTheoricalAbaloneBoard(AbaloneBoard *dst, AbaloneBoard *src);
 void setDefaultConf(AbaloneBoard *ab);
 void drawBoard(AbaloneBoard *ab, EventManager *em);

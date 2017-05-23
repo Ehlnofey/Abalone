@@ -61,13 +61,13 @@ extern signed char moveDirections[NB_MOVE_DIRECTIONS][2];
 extern signed char selectionDirections[NB_SELECTION_DIRECTIONS][2];
 
 MoveNode* selection(IA* ia);
-void append_mono_ball_move(IA *ia, MoveNode* moves, signed char sx, signed char sy);
-void append_possible_move(IA* ia, MoveNode* moves, signed char bx, signed char by, signed char sx, signed char sy, signed char nb);
+void append_mono_ball_move(IA *ia, MoveNode** moves, signed char sx, signed char sy);
+void append_possible_move(IA* ia, MoveNode** moves, signed char bx, signed char by, signed char sx, signed char sy, signed char nb);
 int isLineMove(signed char sx, signed char sy, signed char mx, signed char my);
 int possible_line_move(IA* ia, signed char bx, signed char by, signed char mx, signed char my, signed char nb);
 int possible_broad_move(IA* ia, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb);
 
-void add_move(MoveNode* moves, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb);
+void add_move(MoveNode** moves, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb);
 void free_moves(MoveNode* moves);
 void perform_move(IA* ia, Move* move);
 

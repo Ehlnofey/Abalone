@@ -210,7 +210,7 @@ BestMove* minimax(IA* ia, int deep, int max) {
 void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep) {
 	IA* ia = new_ia(abalone, evalWeight);
 
-	BestMove* r = minimaxWithThread(ia, deep, 0);
+	BestMove* r = minimax/*WithThread*/(ia, deep, 0);
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
 		r->score,
 		r->move.bx + 65,
@@ -299,14 +299,14 @@ int isLineMove(signed char sx, signed char sy, signed char mx, signed char my) {
 	return 0;
 }
 
-void append_mono_ball_move(IA *ia, MoveNode* moves, signed char sx, signed char sy) {
+void append_mono_ball_move(IA *ia, MoveNode** moves, signed char sx, signed char sy) {
 	int i;
 
 	for (i = 0; i < NB_MOVE_DIRECTIONS; i++) {
 		signed char v = get(ia, sx + moveDirections[i][0], sy + moveDirections[i][1]);
 
 		if (v == NO_BALL) {
-			add_move(&moves, sx, sy, sx, sy, moveDirections[i][0], moveDirections[i][1], 1);
+			add_move(moves, sx, sy, sx, sy, moveDirections[i][0], moveDirections[i][1], 1);
 			//printf("  %c %d -> %c %d (1)\n", sx + 65, sy + 1, sx + moveDirections[i][0] + 65, sy + moveDirections[i][1] + 1);
 		}
 	}
@@ -359,7 +359,7 @@ int possible_broad_move(IA* ia, signed char bx, signed char by, signed char sx, 
 	return can;
 }
 
-void append_possible_move(IA* ia, MoveNode* moves, signed char bx, signed char by, signed char sx, signed char sy, signed char nb) {
+void append_possible_move(IA* ia, MoveNode** moves, signed char bx, signed char by, signed char sx, signed char sy, signed char nb) {
 	int i;
 
 	for (i = 0; i < NB_MOVE_DIRECTIONS; i++) {
@@ -392,21 +392,21 @@ void append_possible_move(IA* ia, MoveNode* moves, signed char bx, signed char b
 
 			if (possible_line_move(ia, nbx, nby, mx, my, nb)) {
 				if (invS) {
-					add_move(&moves, nbx, nby, -sx, -sy, mx, my, nb);
+					add_move(moves, nbx, nby, -sx, -sy, mx, my, nb);
 				}
 				else {
-					add_move(&moves, nbx, nby, sx, sy, mx, my, nb);
+					add_move(moves, nbx, nby, sx, sy, mx, my, nb);
 				}
 			}
 		}
 		else if (possible_broad_move(ia, bx, by, sx, sy, mx, my, nb)) {
-			add_move(&moves, bx, by, sx, sy, mx, my, nb);
+			add_move(moves, bx, by, sx, sy, mx, my, nb);
 		}
 	}
 }
 
 
-void add_move(MoveNode* moves, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb) {
+void add_move(MoveNode** moves, signed char bx, signed char by, signed char sx, signed char sy, signed char mx, signed char my, signed char nb) {
 	MoveNode* node = (MoveNode*)malloc(sizeof(MoveNode));
 
 	assert(node != NULL);
@@ -424,11 +424,11 @@ void add_move(MoveNode* moves, signed char bx, signed char by, signed char sx, s
 	node->value->my = my;
 	node->value->nb = nb;
 
-	if (moves == NULL) {
-		moves = node;
+	if (*moves == NULL) {
+		*moves = node;
 	}
 	else {
-		MoveNode* current = moves;
+		MoveNode* current = *moves;
 
 		while (current->next != NULL) {
 			current = current->next;

@@ -24,6 +24,7 @@ int main(int argc, char * argv[])
 	TextureManager *tm;
 	AbaloneBoard *ab;
 	EvalWeights evalWeightsD, evalWeightsA;
+	int cnt = 1;
 	
 	initEventManager(&myEM);
 	addCallback(&handle_EVENT, SDL_EVENT);
@@ -46,12 +47,12 @@ int main(int argc, char * argv[])
 	clock_t start;
 	start = clock();
 
-	while (mainEvent(&myEM) == 1)
+	while (mainEvent(&myEM) == 1 && cnt)
 	{
 		mainWindow(&myEM,myWindow);
 		setDrawableCoord(ab);
 		drawBoard(ab, &myEM);
-		if (clock() - start > 100 && iaPlay)
+		if (clock() - start > 1 && iaPlay)
 		{
 			if(ab->turn==BLACK)
 				start_ia(ab, &evalWeightsD, 3);
@@ -59,7 +60,21 @@ int main(int argc, char * argv[])
 				start_ia(ab, &evalWeightsA, 3);
 			start = clock();
 		}
+		switch(someoneWin(ab))
+		{
+		case BLACK:
+			cnt = 0;
+			printf("Noir a gagne !\n");
+			break;
+		case WHITE:
+			cnt = 0;
+			printf("Blanc a gagne !\n");
+			break;
+		}
 	}
+
+	if (cnt == 0)
+		system("pause");
 
 	deleteAdaloneBoard(ab);
 	deleteTextureManager(tm);

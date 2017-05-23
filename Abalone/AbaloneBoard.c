@@ -49,6 +49,17 @@ AbaloneBoard * newTheoricalAbaloneBoard(int blackBallCount, int whiteBallCount)
 	return ab;
 }
 
+int someoneWin(AbaloneBoard * ab)
+{
+	if (ab->blackBallsCount - ab->blackDeadBalls < 6)
+		return WHITE;
+
+	if (ab->whiteBallsCount - ab->whiteDeadBalls < 6)
+		return BLACK;
+
+	return NO_BALL;
+}
+
 void copyTheoricalAbaloneBoard(AbaloneBoard * dst, AbaloneBoard * src)
 {
 	int i, j;
@@ -386,7 +397,7 @@ int euclidianDist(int x1, int y1, int x2, int y2)
 {
 	return (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
 }
-
+	
 void nearest(int x1, int y1, int x2, int y2, int x, int y, int *fx, int *fy, int *rx, int *ry)
 {
 	if (euclidianDist(x1, y1, x, y) < euclidianDist(x2, y2, x, y))
@@ -418,7 +429,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 	if (ab->selectedBalls != 0)
 	{
 		int selectedColor, color;
-		int i = 0, j = 0;
+		int i = 0, j = 0, k= 0;
 		int dx, dy;
 		double a;
 		double b;
@@ -441,10 +452,12 @@ int canMove(AbaloneBoard *ab,int x, int y)
 					isAlign = 0;
 			}
 
-			if(isAlign)
+			if (isAlign)
+			{
 				for (j = 0;j < ab->selectedBalls - 1;j++)
 					for (i = 0;i < ab->selectedBalls - 1;i++)
 						nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
+			}
 		}
 
 		dx = x - ab->x[0];
