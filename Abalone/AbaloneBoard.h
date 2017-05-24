@@ -15,10 +15,8 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 640 
 
-typedef enum Direction
-{
-	NORTH_EAST, NORTH_WEST, EAST, WEST, SOUTH_EAST, SOUTH_WEST
-}Direction;
+extern int defaultBoard[SIZE][SIZE];
+extern int belgianDaisyBoard[SIZE][SIZE];
 
 typedef struct AbaloneBoard
 {
@@ -41,10 +39,8 @@ void setDefaultConf(AbaloneBoard *ab);
 void drawBoard(AbaloneBoard *ab, EventManager *em);
 void setConf(AbaloneBoard * ab,int board[9][9]);
 void deleteAdaloneBoard(AbaloneBoard *ab);
-void deleteTheoricalAbaloneBoard(AbaloneBoard *ab);
 void convertCoord(int boardLetter, int boardNumber, int *screenX, int *screenY);
 void setDrawableCoord(AbaloneBoard *ab);
-int canMoveDir(Direction dir, AbaloneBoard *ab);
 int canMove(AbaloneBoard *ab, int x, int y);
 int isCorrectForXYAlign(int x[3], int y[3], int size);
 void isRightCliked(AbaloneBoard *ab, int x, int y);
