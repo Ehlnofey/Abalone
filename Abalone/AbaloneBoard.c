@@ -433,10 +433,10 @@ int sign(int x)
 
 int canBroadMove(AbaloneBoard *ab, int x, int y)
 {
-	int i = 0, allow = 0;
+	int i = 0, j = 0, allow = 0;
 	ab->broadSizeMove = 1;
 
-	for (i = 0;i < ab->selectedBalls;i++)
+	for (i = 0;i < ab->selectedBalls && !allow;i++)
 	{
 		int e = euclidianDist(x, y, ab->x[i], ab->y[i]);
 		if (e == 1 || e == 2)
@@ -448,14 +448,15 @@ int canBroadMove(AbaloneBoard *ab, int x, int y)
 			ab->x[0] = px;
 			ab->y[0] = py;
 		}
+
+		ab->dxj = x - ab->x[0];
+		ab->dyj = y - ab->y[0];
+
+		for (j = 0;j < ab->selectedBalls && allow;j++)
+			if (ab->x[j] + ab->dxj < SIZE && ab->x[j] + ab->dxj >= 0 && ab->y[j] + ab->dyj < SIZE && ab->y[j] + ab->dyj >= 0)
+				allow = allow && (ab->board[ab->x[j] + ab->dxj][ab->y[j] + ab->dyj] == NO_BALL);
 	}
 	
-	ab->dxj = x - ab->x[0];
-	ab->dyj = y - ab->y[0];
-
-	for (i = 0;i < ab->selectedBalls && allow;i++)
-		if (ab->x[i] + ab->dxj < SIZE && ab->x[i] + ab->dxj >= 0 && ab->y[i] + ab->dyj < SIZE && ab->y[i] + ab->dyj >= 0)
-			allow = allow && (ab->board[ab->x[i] + ab->dxj][ab->y[i] + ab->dyj] == NO_BALL);
 
 	return allow;
 }

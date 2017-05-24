@@ -15,6 +15,8 @@ int handle_EVENT(Event *e)
 	if (evt->type == SDL_KEYDOWN)
 		if (evt->key.keysym.sym == (SDL_Keycode)SDLK_p)
 			iaPlay = 0;
+
+	return 0;
 }
 
 int main(int argc, char * argv[])
