@@ -207,10 +207,15 @@ BestMove* minimax(IA* ia, int deep, int max) {
 	}
 }
 
-void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep) {
+void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep, int thread) {
 	IA* ia = new_ia(abalone, evalWeight);
 
-	BestMove* r = minimax/*WithThread*/(ia, deep, 0);
+	BestMove* r;
+	if(thread)
+		r = minimaxWithThread(ia, deep, 0);
+	else
+		r = minimax(ia, deep, 0);
+
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
 		r->score,
 		r->move.bx + 65,

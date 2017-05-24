@@ -39,6 +39,8 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 	ab->black = malloc(sizeof(Drawable)*blackBallCount);
 	ab->white = malloc(sizeof(Drawable)*whiteBallCount);
+	ab->blackDeadBalls = 0;
+	ab->whiteDeadBalls = 0;
 
 	ab->boardDrawable = getDrawable(ren, "./Image/AbaloneBoard.png", 0, 0);
 	for (i = 0;i < blackBallCount;i++)
@@ -530,7 +532,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 
 			ab->jumpOver++;
 
-			if (ab->x[0] + 2*dx >= SIZE || ab->y[0] + 2*dy >= SIZE)
+			if (ab->x[0] + 2*dx >= SIZE || ab->y[0] + 2*dy >= SIZE || ab->x[0] + 2 * dx < 0 || ab->y[0] + 2 * dy < 0)
 				return 1;
 
 			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == NO_BALL || ab->board[ab->x[0] + 2 * dx][ab->y[0] + 2 * dy] == OUT_ZONE)
@@ -540,7 +542,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			{
 				ab->jumpOver++;
 
-				if (ab->x[0] + 3*dx >= SIZE || ab->y[0] + 3*dy >= SIZE)
+				if (ab->x[0] + 3*dx >= SIZE || ab->y[0] + 3*dy >= SIZE || ab->x[0] + 3 * dx < 0 || ab->y[0] + 3 * dy < 0)
 					return 1;
 
 				return (ab->board[ab->x[0] + 3 * dx][ab->y[0] + 3 * dy] == NO_BALL) || (ab->board[ab->x[0] + 3 * dx][ab->y[0] + 3 * dy] == OUT_ZONE);

@@ -56,10 +56,10 @@ int main(int argc, char * argv[])
 		drawBoard(ab, &myEM);
 		if (clock() - start > 1 && iaPlay)
 		{
-			if(ab->turn==BLACK)
-				start_ia(ab, &evalWeightsD, 3);
+			if (ab->turn == BLACK)
+				start_ia(ab, &evalWeightsD, 3, 0);
 			else
-				start_ia(ab, &evalWeightsA, 3);
+				start_ia(ab, &evalWeightsA, 3, 0);
 			start = clock();
 		}
 		switch(someoneWin(ab))
