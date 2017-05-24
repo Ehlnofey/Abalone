@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
 	int cnt = 1;
 	
 	initEventManager(&myEM);
-	addCallback(&handle_EVENT, SDL_EVENT);
+	addCallback(&myEM, &handle_EVENT, SDL_EVENT);
 	myWindow = buildWindow(&myEM, WINDOW_HEIGHT, WINDOW_WIDTH, "Test !");
 	tm = newTextureManager();
 	ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);

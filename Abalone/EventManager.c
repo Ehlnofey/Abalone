@@ -22,7 +22,6 @@ void initEventManager(EventManager *em)
 	em->el.event.data = NULL;
 	em->el.event.haveToBeDelete = 0;
 	em->el.next = NULL;
-	em->el.previous = NULL;
 
 	getEventManager(em);
 }
@@ -67,9 +66,8 @@ int mainEvent(EventManager *em)
 	return run;
 }
 
-void addCallback(int(*handle)(Event*e), enum EVENT_CODE code)
+void addCallback(EventManager *em, int(*handle)(Event*e), enum EVENT_CODE code)
 {
-	EventManager *em = getEventManager(NULL);
 	if (em->cl.handle == NULL)
 	{
 		em->cl.handle = handle;
@@ -110,15 +108,13 @@ void pushEvent(Event e)
 		while (it->next != NULL)
 			it = it->next;
 
-		el->previous = it;
 		el->next = NULL;
 		it->next = el;
 	}
 }
 
-void deleteEvent()
+void deleteEvent(EventManager *em)
 {
-	EventManager *em = getEventManager(NULL);
 	EventList *it = em->el.next;
 	while (it != NULL)
 	{
@@ -129,9 +125,8 @@ void deleteEvent()
 	em->el.next = NULL;
 }
 
-void deleteCallback()
+void deleteCallback(EventManager *em)
 {
-	EventManager *em = getEventManager(NULL);
 	CallbackList *it = em->cl.next;
 	while (it != NULL)
 	{

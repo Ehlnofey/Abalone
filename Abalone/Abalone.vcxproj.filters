@@ -37,12 +37,6 @@
     <Filter Include="Fichiers sources\IA">
       <UniqueIdentifier>{a79b9ae9-d122-4b46-a580-1593c427b491}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Fichiers sources\IA\BasicIA">
-      <UniqueIdentifier>{097d17e5-ad0e-49cc-9862-382ff11893ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Fichiers d%27en-tête\IA\BasicIA">
-      <UniqueIdentifier>{d444f5d3-86ff-42b0-b49b-9e7dbe4f2e03}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Fichiers sources\IA\MinIA">
       <UniqueIdentifier>{475fa88a-9b37-49ef-a865-12af142ea7f7}</UniqueIdentifier>
     </Filter>
@@ -72,15 +66,6 @@
     <ClCompile Include="minimax.c">
       <Filter>Fichiers sources\IA\MinIA</Filter>
     </ClCompile>
-    <ClCompile Include="BasicIA.c">
-      <Filter>Fichiers sources\IA\BasicIA</Filter>
-    </ClCompile>
-    <ClCompile Include="Tree.c">
-      <Filter>Fichiers sources\IA\BasicIA</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeList.c">
-      <Filter>Fichiers sources\IA\BasicIA</Filter>
-    </ClCompile>
     <ClCompile Include="MinimaxThreaded.c">
       <Filter>Fichiers sources\IA\MinIA</Filter>
     </ClCompile>
@@ -103,15 +88,6 @@
     </ClInclude>
     <ClInclude Include="AbaloneBoard.h">
       <Filter>Fichiers d%27en-tête\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicIA.h">
-      <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
-    </ClInclude>
-    <ClInclude Include="Tree.h">
-      <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
-    </ClInclude>
-    <ClInclude Include="TreeList.h">
-      <Filter>Fichiers d%27en-tête\IA\BasicIA</Filter>
     </ClInclude>
     <ClInclude Include="minimax.h">
       <Filter>Fichiers d%27en-tête\IA\MinIA</Filter>

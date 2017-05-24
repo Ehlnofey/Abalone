@@ -53,7 +53,7 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 	getAbaloneBoard(ab);
 
-	addCallback(handleClik, SDL_EVENT);
+	addCallback(em, handleClik, SDL_EVENT);
 
 	return ab;
 }
@@ -168,15 +168,6 @@ void deleteAdaloneBoard(AbaloneBoard * ab)
 
 void convertCoord(int boardLetter, int boardNumber, int * screenX, int * screenY)
 {
-	/*boardLetter *= 66;
-	boardNumber *= 66;
-	boardNumber *= cos(30. / 180.*M_PI);
-	boardLetter += 238;
-	boardNumber += 63;
-	boardNumber = WINDOW_HEIGHT - boardNumber;
-	*screenX = boardLetter;
-	*screenY = boardNumber;*/
-
 	if (boardLetter > 4)
 		boardNumber -= boardLetter - 4;
 	boardLetter -= 4;
@@ -192,13 +183,7 @@ void convertCoord(int boardLetter, int boardNumber, int * screenX, int * screenY
 
 void screenToBoard(int screenX, int screenY, int *boardL, int *boardN)
 {
-/*	screenY = WINDOW_HEIGHT - screenY;
-	screenY -= 63;
-	screenX -= 238;
-	screenY /= cos(30. / 180.*M_PI);
-	*boardL = screenX / 66;
-	*boardN = screenY / 66;*/
-	*boardL = (int)(floor((screenY - 293.) / 57.)); ////Old version
+	*boardL = (int)(floor((screenY - 293.) / 57.)); 
 	*boardN = (int)((screenX - (109 + abs(*boardL)*cos(60. / 180.*M_PI) * 66)) / 66);
 	*boardL *= -1;
 	*boardL += 4;
@@ -339,22 +324,9 @@ int getOpponentBallsCount(int ox, int oy, int dx, int dy, int color)
 void move(AbaloneBoard *ab, int ox, int oy, int destx, int desty)
 {
 	int i = 0, j = 0;
-	int selectedColor, color, opColor;
 
-	if (ab->turn == BLACK)
-	{
-		selectedColor = SELECTED_BLACK;
-		color = BLACK;
-		opColor = WHITE;
-	}
-	else  if (ab->turn == WHITE)
-	{
-		selectedColor = SELECTED_WHITE;
-		color = WHITE;
-		opColor = BLACK;
-	}
 	for (i = 0; i < ab->selectedBalls; i++)
-		ab->board[ab->x[i]][ab->y[i]] = color;
+		ab->board[ab->x[i]][ab->y[i]] = ab->turn;
 
 	ab->board[ox][oy] = NO_BALL;
 	
@@ -362,39 +334,39 @@ void move(AbaloneBoard *ab, int ox, int oy, int destx, int desty)
 	{
 		if (destx + ab->dxj >= SIZE || desty + ab->dyj >= SIZE)
 		{
-			if (-color == BLACK)
+			if (-ab->turn == BLACK)
 				ab->blackDeadBalls++;
 			else
 				ab->whiteDeadBalls++;
 		}
 		else if (ab->board[destx + ab->dxj][desty + ab->dyj] == OUT_ZONE)
 		{
-			if (-color == BLACK)
+			if (-ab->turn == BLACK)
 				ab->blackDeadBalls++;
 			else
 				ab->whiteDeadBalls++;
 		}
 		else if(ab->jumpOver == 1)
-			ab->board[destx + ab->dxj][desty + ab->dyj] = -color;
+			ab->board[destx + ab->dxj][desty + ab->dyj] = -ab->turn;
 		else if (destx + 2 * ab->dxj >= SIZE || desty + 2 * ab->dyj >= SIZE)
 		{
-			if (-color == BLACK)
+			if (-ab->turn == BLACK)
 				ab->blackDeadBalls++;
 			else
 				ab->whiteDeadBalls++;
 		}
 		else if (ab->board[destx + 2*ab->dxj][desty + 2*ab->dyj] == OUT_ZONE)
 		{
-			if (-color == BLACK)
+			if (-ab->turn == BLACK)
 				ab->blackDeadBalls++;
 			else
 				ab->whiteDeadBalls++;
 		}
 		else
-			ab->board[destx + 2*ab->dxj][desty + 2*ab->dyj] = -color;
+			ab->board[destx + 2*ab->dxj][desty + 2*ab->dyj] = -ab->turn;
 	}
 
-	ab->board[destx][desty] = color;
+	ab->board[destx][desty] = ab->turn;
 }
 
 int euclidianDist(int x1, int y1, int x2, int y2)
@@ -471,7 +443,6 @@ int canMove(AbaloneBoard *ab,int x, int y)
 
 	if (ab->selectedBalls != 0)
 	{
-		int selectedColor, color;
 		int i = 0, j = 0, k= 0;
 		int dx, dy;
 		double a;
@@ -514,18 +485,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 		if (abs(dx) > 1 || abs(dy > 1))
 			return 0;
 
-		if (ab->turn == BLACK)
-		{
-			selectedColor = SELECTED_BLACK;
-			color = BLACK;
-		}
-		else  if (ab->turn == WHITE)
-		{
-			selectedColor = SELECTED_WHITE;
-			color = WHITE;
-		}
-
-		if (color + ab->board[x][y] == 0)
+		if (ab->turn + ab->board[x][y] == 0)
 		{
 			if (ab->selectedBalls == 1 || isAlign == 0)
 				return 0;
@@ -538,7 +498,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == NO_BALL || ab->board[ab->x[0] + 2 * dx][ab->y[0] + 2 * dy] == OUT_ZONE)
 				return 1;
 			
-			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == -color && ab->selectedBalls == 3)
+			if (ab->board[ab->x[0] + 2*dx][ab->y[0] + 2*dy] == -ab->turn && ab->selectedBalls == 3)
 			{
 				ab->jumpOver++;
 
@@ -557,7 +517,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			{
 				if (ab->selectedBalls == 1)
 					allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]) && (abs(dx)!=abs(dy)||sign(dx)==sign(dy));
-				else //if (ab->selectedBalls == 2)
+				else 
 				{
 					if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
 						allow = (abs(ab->x[0] - x) == 1 && abs(y - ab->y[0]) == 1);

@@ -16,7 +16,6 @@ typedef struct _Event
 typedef struct _EventList
 {
 	struct _EventList *next;
-	struct _EventList *previous;
 	Event event;
 }EventList;
 
