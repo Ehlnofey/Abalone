@@ -420,6 +420,44 @@ void nearest(int x1, int y1, int x2, int y2, int x, int y, int *fx, int *fy, int
 	}
 }
 
+int sign(int x)
+{
+	if (x < 0)
+		return -1;
+	if (x > 0)
+		return 1;
+	return 0;
+}
+
+int canBroadMove(AbaloneBoard *ab, int x, int y)
+{
+	int i = 0, allow = 0;
+	ab->broadSizeMove = 1;
+
+	for (i = 0;i < ab->selectedBalls;i++)
+	{
+		int e = euclidianDist(x, y, ab->x[i], ab->y[i]);
+		if (e == 1 || e == 2)
+		{
+			int px = ab->x[i], py = ab->y[i];
+			allow = 1;
+			ab->x[i] = ab->x[0];
+			ab->y[i] = ab->y[0];
+			ab->x[0] = px;
+			ab->y[0] = py;
+		}
+	}
+	
+	ab->dxj = x - ab->x[0];
+	ab->dyj = y - ab->y[0];
+
+	for (i = 0;i < ab->selectedBalls && allow;i++)
+		if (ab->x[i] + ab->dxj < SIZE && ab->x[i] + ab->dxj >= 0 && ab->y[i] + ab->dyj < SIZE && ab->y[i] + ab->dyj >= 0)
+			allow = allow && (ab->board[ab->x[i] + ab->dxj][ab->y[i] + ab->dyj] == NO_BALL);
+
+	return allow;
+}
+
 int canMove(AbaloneBoard *ab,int x, int y)
 {
 	int allow = 0;
@@ -458,6 +496,8 @@ int canMove(AbaloneBoard *ab,int x, int y)
 					for (i = 0;i < ab->selectedBalls - 1;i++)
 						nearest(ab->x[i], ab->y[i], ab->x[i + 1], ab->y[i + 1], x, y, &ab->x[i], &ab->y[i], &ab->x[i + 1], &ab->y[i + 1]);
 			}
+			else if(ab->selectedBalls>1)
+				return canBroadMove(ab, x, y);
 		}
 
 		dx = x - ab->x[0];
@@ -511,7 +551,7 @@ int canMove(AbaloneBoard *ab,int x, int y)
 			if (isAlign)
 			{
 				if (ab->selectedBalls == 1)
-					allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]);
+					allow = (abs(ab->x[0] - x) <= 1 && abs(y - ab->y[0]) <= 1) && (x != ab->x[0] || y != ab->y[0]) && (abs(dx)!=abs(dy)||sign(dx)==sign(dy));
 				else //if (ab->selectedBalls == 2)
 				{
 					if (ab->x[0] != ab->x[1] && ab->y[0] != ab->y[1])
@@ -559,10 +599,6 @@ void isRightCliked(AbaloneBoard *ab,int x, int y)
 		}
 		ab->turn = (ab->turn == WHITE) ? BLACK : WHITE;
 		ab->selectedBalls = 0;
-
-		//if (ab->turn == WHITE) {
-		//	start_ia(ab, 3);
-		//}
 	}
 }
 
