@@ -1,8 +1,6 @@
 #ifndef MINIMAX_THREADED_H
 #define MINIMAX_THREADED_H
 
-#include "minimax.h"
-
 typedef struct MinimaxThreadStruct
 {
 	IA *ia;

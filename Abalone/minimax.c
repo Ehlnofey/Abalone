@@ -1,5 +1,8 @@
+#define _TIMESPEC_DEFINED
 #include <assert.h>
+#include <pthread.h>
 #include "minimax.h"
+#include "MinimaxThreaded.h"
 
 //#define MINIMAX_DEBUG
 

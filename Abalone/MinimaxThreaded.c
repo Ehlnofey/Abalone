@@ -1,8 +1,8 @@
 #define _TIMESPEC_DEFINED
 #include <assert.h>
 #include <pthread.h>
-#include "MinimaxThreaded.h"
 #include "minimax.h"
+#include "MinimaxThreaded.h"
 
 void* minimaxthreaded(void *arg)
 {
@@ -21,6 +21,8 @@ void* minimaxthreaded(void *arg)
 	free(m);
 
 	pthread_exit(b);
+
+	return NULL;
 }
 MinimaxThreadStruct * newMinimaxThreadStruct(IA * ia, int deep, int max)
 {

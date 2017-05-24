@@ -55,6 +55,7 @@ void free_ia(IA* ia);
 BestMove* minimax(IA* ia, int deep, int max);
 void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeights, int deep, int thread);
 void print_board(IA* ia);
+int eval(IA* ia);
 signed char get(IA* ia, int x, int y);
 
 extern signed char moveDirections[NB_MOVE_DIRECTIONS][2];
