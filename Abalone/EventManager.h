@@ -11,7 +11,7 @@ typedef struct EventManager
 }EventManager;
 
 void initEventManager(EventManager *em);
-int mainEvent();
+int mainEvent(EventManager *em);
 void addCallback(int(*handle)(Event*e), enum EVENT_CODE code);
 void pushEvent(Event e);
 void deleteEvent();

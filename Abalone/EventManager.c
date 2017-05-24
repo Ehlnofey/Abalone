@@ -27,9 +27,8 @@ void initEventManager(EventManager *em)
 	getEventManager(em);
 }
 
-int mainEvent()
+int mainEvent(EventManager *em)
 {
-	EventManager *em = getEventManager(NULL);
 	CallbackList *it = &em->cl;
 	CallbackList *cbl = &em->cl;
 	EventList *el = &em->el;
