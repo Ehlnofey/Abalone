@@ -161,11 +161,11 @@ int eval(IA* ia) {
 	return j;
 }
 
-BestMove* minimax(IA* ia, int deep, int max) {
+BestMove* minimax(IA* ia, int deep, int color, int alpha, int beta) {
 	if (deep == 0) {
 		BestMove *r = malloc(sizeof(BestMove));
 
-		r->score = eval(ia);
+		r->score = eval(ia) * color;
 		return r;
 	}
 	else {
@@ -177,18 +177,19 @@ BestMove* minimax(IA* ia, int deep, int max) {
 		copy = (IA*)malloc(sizeof(IA));
 		assert(copy != NULL);
 
-		best->score = (max) ? -10000000 : 10000000;
+		best->score = -10000000;
 		moves = selection(ia);
 		current = moves;
-		
+
 
 		while (current != NULL) {
 			copy_ia(ia, copy);
 			perform_move(copy, current->value);
 			copy->turn = -(copy->turn);
-			BestMove* r = minimax(copy, deep - 1, !max);
+			BestMove* r = minimax(copy, deep - 1, -color, -beta, -alpha);
+			r->score = -r->score;
 
-			if (max && r->score > best->score || !max && r->score < best->score) {
+			if (r->score > best->score) {
 				best->score = r->score;
 				best->move.bx = current->value->bx;
 				best->move.by = current->value->by;
@@ -197,6 +198,18 @@ BestMove* minimax(IA* ia, int deep, int max) {
 				best->move.sx = current->value->sx;
 				best->move.sy = current->value->sy;
 				best->move.nb = current->value->nb;
+
+				if (r->score < alpha) {
+					alpha = r->score;
+
+					if (alpha >= beta) {
+						free_ia(copy);
+						free_moves(moves);
+						free(r);
+
+						return best;
+					}
+				}
 			}
 
 			free(r);
@@ -214,10 +227,10 @@ void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep, int thre
 	IA* ia = new_ia(abalone, evalWeight);
 
 	BestMove* r;
-	if(thread)
-		r = minimaxWithThread(ia, deep, 0);
+	if (thread)
+		r = minimaxWithThread(ia, deep, -1);
 	else
-		r = minimax(ia, deep, 0);
+		r = minimax(ia, deep, -1, -10000000, 10000000);
 
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
 		r->score,
@@ -328,7 +341,7 @@ int possible_line_move(IA* ia, signed char bx, signed char by, signed char mx, s
 	if (v1 == OUT_ZONE || v1 == ia->turn) {
 		return 0;
 	}
-	else if(v1 == NO_BALL) {
+	else if (v1 == NO_BALL) {
 		return 1;
 	}
 	else {
@@ -337,7 +350,7 @@ int possible_line_move(IA* ia, signed char bx, signed char by, signed char mx, s
 		if (v2 == NO_BALL || v2 == OUT_ZONE) {
 			return 1;
 		}
-		else if(nb > 2 && v2 != ia->turn) {
+		else if (nb > 2 && v2 != ia->turn) {
 			signed char v3 = get(ia, bx + mx * 3, by + my * 3);
 
 			if (v3 == NO_BALL || v3 == OUT_ZONE) {
@@ -373,7 +386,7 @@ void append_possible_move(IA* ia, MoveNode** moves, signed char bx, signed char 
 	for (i = 0; i < NB_MOVE_DIRECTIONS; i++) {
 		int mx, my;
 		int bLineMove;
-		
+
 		mx = moveDirections[i][0];
 		my = moveDirections[i][1];
 		bLineMove = isLineMove(sx, sy, mx, my);
@@ -449,7 +462,7 @@ void add_move(MoveNode** moves, signed char bx, signed char by, signed char sx, 
 void perform_move(IA* ia, Move* move) {
 	signed char tox = move->bx + move->mx;
 	signed char toy = move->by + move->my;
-	
+
 	if (move->nb == 1) {
 		ia->board[move->bx][move->by] = NO_BALL;
 		ia->board[tox][toy] = ia->turn;
@@ -538,7 +551,7 @@ void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed c
 #ifdef MINIMAX_DEBUG
 	printf("%c %d -> %c %d (%d) moved\n", bx + 65, by + 1, tox + 65, toy + 1, player);
 #endif // MINIMAX_DEBUG
-	
+
 
 	Ball* current = get_balls(ia, player);
 	int i;

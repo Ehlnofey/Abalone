@@ -52,7 +52,7 @@ typedef struct IA {
 IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights);
 void copy_ia(IA* src, IA* dst);
 void free_ia(IA* ia);
-BestMove* minimax(IA* ia, int deep, int max);
+BestMove* minimax(IA* ia, int deep, int color, int alpha, int beta);
 void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeights, int deep, int thread);
 void print_board(IA* ia);
 int eval(IA* ia);

@@ -115,7 +115,7 @@ void setDefaultConf(AbaloneBoard * ab)
 
 	for (i = 0; i < SIZE; i++) {
 		for (j = 0; j < SIZE; j++) {
-			ab->board[i][j] = belgianDaisyBoard[i][j];
+			ab->board[i][j] = defaultBoard[i][j];
 		}
 	}
 }

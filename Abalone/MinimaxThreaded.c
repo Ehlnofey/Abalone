@@ -14,7 +14,7 @@ void* minimaxthreaded(void *arg)
 #ifdef SHOW_TIME
 	start = clock();
 #endif
-	BestMove *b = minimax(m->ia, m->deep, m->max);
+	BestMove *b = minimax(m->ia, m->deep, m->max, -10000000, 10000000);
 #ifdef SHOW_TIME
 	printf("tmps fct thread : %dms\n", clock() - start);
 #endif

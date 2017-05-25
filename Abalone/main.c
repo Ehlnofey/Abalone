@@ -39,8 +39,8 @@ int main(int argc, char * argv[])
 	evalWeightsD.center = 100;
 	evalWeightsD.grouping = 100;
 
-	evalWeightsA.attack = 10000;
-	evalWeightsA.defend = 1000;
+	evalWeightsA.attack = 1000;
+	evalWeightsA.defend = 10000;
 	evalWeightsA.center = 100;
 	evalWeightsA.grouping = 100;
 
