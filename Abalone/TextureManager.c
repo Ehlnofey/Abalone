@@ -1,8 +1,6 @@
 #include "TextureManager.h"
 #include <string.h>
 
-TextureManager * getTextureManager(TextureManager *tm);
-
 TextureManager * newTextureManager()
 {
 	TextureManager *t = malloc(sizeof(TextureManager));
@@ -12,14 +10,7 @@ TextureManager * newTextureManager()
 	t->right = NULL;
 	t->texture = NULL;
 
-	getTextureManager(t);
-
 	return t;
-}
-
-SDL_Texture * getTextureFromRoot(char * name)
-{
-	return getTexture(getTextureManager(NULL),name);
 }
 
 SDL_Texture * getTexture(TextureManager *tm, char * name)
@@ -40,9 +31,8 @@ SDL_Texture * getTexture(TextureManager *tm, char * name)
 		return tm->texture;
 }
 
-Drawable getResizedDrawable(SDL_Renderer *ren, char * name, int x, int y, int w, int h)
+Drawable getResizedDrawable(TextureManager *tm, SDL_Renderer *ren, char * name, int x, int y, int w, int h)
 {
-	TextureManager *tm = getTextureManager(NULL);
 	Drawable d;
 
 	d.dst.x = x;
@@ -55,15 +45,14 @@ Drawable getResizedDrawable(SDL_Renderer *ren, char * name, int x, int y, int w,
 	d.tex = getTexture(tm, name);
 
 	if (d.tex == NULL)
-		d.tex = loadTexture(ren, name);
+		d.tex = loadTexture(tm, ren, name);
 
 	return d;
 }
 
-Drawable getDrawable(SDL_Renderer *ren, char * name, int x, int y)
+Drawable getDrawable(TextureManager *tm, SDL_Renderer *ren, char * name, int x, int y)
 {
-	TextureManager *tm = getTextureManager(NULL);
-	return getResizedDrawable(ren, name, x, y, -1, -1);
+	return getResizedDrawable(tm, ren, name, x, y, -1, -1);
 }
 
 int insertTexture(SDL_Texture *texture,TextureManager ** tm, char * name)
@@ -96,9 +85,8 @@ int insertTexture(SDL_Texture *texture,TextureManager ** tm, char * name)
 		return 0;
 }
 
-SDL_Texture * loadTexture(SDL_Renderer * ren, char * name)
+SDL_Texture * loadTexture(TextureManager *tm, SDL_Renderer * ren, char * name)
 {
-	TextureManager *tm = getTextureManager(NULL);
 	SDL_Texture *texture = IMG_LoadTexture(ren, name);
 
 	insertTexture(texture, &tm, name);
@@ -115,12 +103,4 @@ void deleteTextureManager(TextureManager *tm)
 		SDL_DestroyTexture(tm->texture);
 		free(tm);
 	}
-}
-
-TextureManager * getTextureManager(TextureManager *tm)
-{
-	static TextureManager *m_tm = NULL;
-	if (m_tm == NULL)
-		m_tm = tm;
-	return m_tm;
 }

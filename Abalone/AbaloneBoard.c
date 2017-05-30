@@ -41,14 +41,14 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 	ab->blackDeadBalls = 0;
 	ab->whiteDeadBalls = 0;
 
-	ab->boardDrawable = getDrawable(ren, "./Image/AbaloneBoard.png", 0, 0);
+	ab->boardDrawable = getDrawable(tm, ren, "./Image/AbaloneBoard.png", 0, 0);
 	for (i = 0;i < blackBallCount;i++)
-		ab->black[i] = getDrawable(ren, "./Image/blackBall.png", 0, 0);
+		ab->black[i] = getDrawable(tm, ren, "./Image/blackBall.png", 0, 0);
 	
 	for (i = 0;i < whiteBallCount;i++)
-		ab->white[i] = getDrawable(ren, "./Image/whiteBall.png", 0, 0);
+		ab->white[i] = getDrawable(tm, ren, "./Image/whiteBall.png", 0, 0);
 
-	getDrawable(ren, "./Image/selectedBall.png", 0, 0);
+	getDrawable(tm, ren, "./Image/selectedBall.png", 0, 0);
 
 	addCallback(em, handleClik, SDL_EVENT, ab);
 
@@ -74,10 +74,10 @@ AbaloneBoard * newTheoricalAbaloneBoard(int blackBallCount, int whiteBallCount)
 
 int someoneWin(AbaloneBoard * ab)
 {
-	if (ab->blackBallsCount - ab->blackDeadBalls < 6)
+	if (ab->blackDeadBalls >= 6)
 		return WHITE;
 
-	if (ab->whiteBallsCount - ab->whiteDeadBalls < 6)
+	if (ab->whiteDeadBalls >= 6)
 		return BLACK;
 
 	return NO_BALL;
@@ -146,14 +146,17 @@ void drawBoard(AbaloneBoard * ab, EventManager * em)
 		}
 	}
 
+	ab->blackDeadBalls = ab->blackBallsCount - bc;
+	ab->whiteDeadBalls = ab->whiteBallsCount - wc;
+
 }
 
-void setConf(AbaloneBoard * ab,int board[9][9])
+void setConf(AbaloneBoard * ab,int (*board)[9][9])
 {
 	int i = 0, j = 0;
 	for (i = 0;i < SIZE;i++)
 		for (j = 0;j < SIZE;j++)
-			ab->board[i][j]=board[i][j];
+			ab->board[i][j]=(*board)[i][j];
 }
 
 void deleteAdaloneBoard(AbaloneBoard * ab)
@@ -188,7 +191,7 @@ void screenToBoard(int screenX, int screenY, int *boardL, int *boardN)
 		*boardN += *boardL - 4;
 }
 
-void setDrawableCoord(AbaloneBoard * ab)
+void setDrawableCoord(AbaloneBoard * ab, TextureManager *tm)
 {
 	int i = 0, j = 0, bc = 0, wc = 0;
 
@@ -206,9 +209,9 @@ void setDrawableCoord(AbaloneBoard * ab)
 
 				convertCoord(i, j, &ab->black[bc].dst.x, &ab->black[bc].dst.y);
 				if (ab->board[i][j] == SELECTED_BLACK)
-					ab->black[bc].tex = getTextureFromRoot("./Image/selectedBall.png");
+					ab->black[bc].tex = getTexture(tm, "./Image/selectedBall.png");
 				else
-					ab->black[bc].tex = getTextureFromRoot("./Image/blackBall.png");
+					ab->black[bc].tex = getTexture(tm, "./Image/blackBall.png");
 
 				bc++;
 			}
@@ -222,9 +225,9 @@ void setDrawableCoord(AbaloneBoard * ab)
 
 				convertCoord(i, j, &ab->white[wc].dst.x, &ab->white[wc].dst.y);
 				if(ab->board[i][j]==SELECTED_WHITE)
-					ab->white[wc].tex = getTextureFromRoot("./Image/selectedBall.png");
+					ab->white[wc].tex = getTexture(tm, "./Image/selectedBall.png");
 				else
-					ab->white[wc].tex = getTextureFromRoot("./Image/whiteBall.png");
+					ab->white[wc].tex = getTexture(tm, "./Image/whiteBall.png");
 				wc++;
 			}
 		}

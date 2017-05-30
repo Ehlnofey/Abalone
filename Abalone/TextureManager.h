@@ -19,11 +19,10 @@ typedef struct TextureManager
 }TextureManager;
 
 TextureManager* newTextureManager();
-SDL_Texture* getTextureFromRoot(char *name);
 SDL_Texture* getTexture(TextureManager *tm, char *name);
-Drawable getResizedDrawable(SDL_Renderer *ren, char *name, int x, int y, int w, int h);
-Drawable getDrawable(SDL_Renderer *ren, char *name, int x, int y);
-SDL_Texture* loadTexture(SDL_Renderer *ren,  char *name);
+Drawable getResizedDrawable(TextureManager *tm, SDL_Renderer *ren, char *name, int x, int y, int w, int h);
+Drawable getDrawable(TextureManager *tm, SDL_Renderer *ren, char *name, int x, int y);
+SDL_Texture* loadTexture(TextureManager *tm, SDL_Renderer *ren,  char *name);
 void deleteTextureManager(TextureManager *tm);
 
 #endif // ! TEXTURE_MANAGER_H

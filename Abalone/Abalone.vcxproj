@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AbaloneBoard.c" />
+    <ClCompile Include="Button.c" />
     <ClCompile Include="Event.c" />
     <ClCompile Include="EventManager.c" />
     <ClCompile Include="main.c" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbaloneBoard.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="CallbackList.h" />

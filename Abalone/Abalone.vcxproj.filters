@@ -78,6 +78,9 @@
     <ClCompile Include="SelectPlayerInterface.c">
       <Filter>Fichiers sources\Interface</Filter>
     </ClCompile>
+    <ClCompile Include="Button.c">
+      <Filter>Fichiers sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventManager.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="SelectPlayerInterface.h">
       <Filter>Fichiers d%27en-tête\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Fichiers d%27en-tête\GUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
