@@ -23,11 +23,13 @@ SelectPlayerInterface * newSelectPlayerInterface(TextureManager *tm, SDL_Rendere
 {
 	SelectPlayerInterface *spi = malloc(sizeof(SelectPlayerInterface));
 
-	spi->IAvsIA = getDrawable(tm, ren, "./Image/IAvsIA.png",0,0);
+	spi->IAvsIA = getDrawable(tm, ren, "./Image/IAvsIA.png",50,275);
 
-	spi->PlayervsIA = getDrawable(tm, ren, "./Image/PlayervsIA.png",200,0);
+	spi->PlayervsIA = getDrawable(tm, ren, "./Image/PlayervsIA.png",300,275);
 
-	spi->PlayervsPlayer = getDrawable(tm, ren, "./Image/PlayervsPlayer.png",400,0);
+	spi->PlayervsPlayer = getDrawable(tm, ren, "./Image/PlayervsPlayer.png",550,275);
+
+	spi->Band = getDrawable(tm, ren, "./Image/Band.png", -20, -20);
 
 	spi->gameMode = NO_GAME_MODE;
 
@@ -52,6 +54,9 @@ void drawSelectPlayerInterface(SelectPlayerInterface * spi, EventManager * em)
 		
 		e.data = &spi->PlayervsPlayer;
 		pushEvent(e);
+
+		//e.data = &spi->Band;
+		//pushEvent(e);
 	}
 }
 

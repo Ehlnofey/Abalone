@@ -8,7 +8,7 @@ typedef enum GameMode {NO_GAME_MODE, IA_VS_IA, PLAYER_VS_IA, PLAYER_VS_PLAYER} G
 
 typedef struct SelectPlayerInterface
 {
-	Drawable IAvsIA, PlayervsIA, PlayervsPlayer;
+	Drawable IAvsIA, PlayervsIA, PlayervsPlayer, Band;
 	GameMode gameMode;
 }SelectPlayerInterface;
 

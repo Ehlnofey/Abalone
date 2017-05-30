@@ -48,7 +48,8 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 	for (i = 0;i < whiteBallCount;i++)
 		ab->white[i] = getDrawable(tm, ren, "./Image/whiteBall.png", 0, 0);
 
-	getDrawable(tm, ren, "./Image/selectedBall.png", 0, 0);
+	getDrawable(tm, ren, "./Image/selectedBallBlack.png", 0, 0);
+	getDrawable(tm, ren, "./Image/selectedBallWhite.png", 0, 0);
 
 	addCallback(em, handleClik, SDL_EVENT, ab);
 
@@ -209,7 +210,7 @@ void setDrawableCoord(AbaloneBoard * ab, TextureManager *tm)
 
 				convertCoord(i, j, &ab->black[bc].dst.x, &ab->black[bc].dst.y);
 				if (ab->board[i][j] == SELECTED_BLACK)
-					ab->black[bc].tex = getTexture(tm, "./Image/selectedBall.png");
+					ab->black[bc].tex = getTexture(tm, "./Image/selectedBallBlack.png");
 				else
 					ab->black[bc].tex = getTexture(tm, "./Image/blackBall.png");
 
@@ -225,7 +226,7 @@ void setDrawableCoord(AbaloneBoard * ab, TextureManager *tm)
 
 				convertCoord(i, j, &ab->white[wc].dst.x, &ab->white[wc].dst.y);
 				if(ab->board[i][j]==SELECTED_WHITE)
-					ab->white[wc].tex = getTexture(tm, "./Image/selectedBall.png");
+					ab->white[wc].tex = getTexture(tm, "./Image/selectedBallWhite.png");
 				else
 					ab->white[wc].tex = getTexture(tm, "./Image/whiteBall.png");
 				wc++;
