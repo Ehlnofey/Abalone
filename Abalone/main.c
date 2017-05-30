@@ -131,7 +131,7 @@ int main(int argc, char * argv[])
 				startGame(&ab, &myEM, myWindow->ren, tm, selectedBoard);
 		}
 		else 
-			playGame(ab, &myEM, tm, spi->gameMode, &start, &iaPlay, &cnt, &evalWeightsA, &evalWeightsD);
+			playGame(ab, &myEM, tm, spi->gameMode, &start, &iaPlay, &cnt, &evalWeightsD, &evalWeightsA);
 	}
 
 	if (cnt == 0)

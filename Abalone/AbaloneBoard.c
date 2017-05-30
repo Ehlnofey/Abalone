@@ -426,6 +426,8 @@ int canBroadMove(AbaloneBoard *ab, int x, int y)
 		ab->dxj = x - ab->x[0];
 		ab->dyj = y - ab->y[0];
 
+		allow = allow && (sign(ab->dxj) == sign(ab->dyj) || ab->dxj == 0 || ab->dyj == 0);
+
 		for (j = 0;j < ab->selectedBalls && allow;j++)
 			if (ab->x[j] + ab->dxj < SIZE && ab->x[j] + ab->dxj >= 0 && ab->y[j] + ab->dyj < SIZE && ab->y[j] + ab->dyj >= 0)
 				allow = allow && (ab->board[ab->x[j] + ab->dxj][ab->y[j] + ab->dyj] == NO_BALL);
