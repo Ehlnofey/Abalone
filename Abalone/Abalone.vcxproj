@@ -159,6 +159,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="minimax.c" />
     <ClCompile Include="MinimaxThreaded.c" />
+    <ClCompile Include="SelectBoardInterface.c" />
     <ClCompile Include="SelectPlayerInterface.c" />
     <ClCompile Include="TextureManager.c" />
     <ClCompile Include="WindowManager.c" />
@@ -171,6 +172,7 @@
     <ClInclude Include="CallbackList.h" />
     <ClInclude Include="minimax.h" />
     <ClInclude Include="MinimaxThreaded.h" />
+    <ClInclude Include="SelectBoardInterface.h" />
     <ClInclude Include="SelectPlayerInterface.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="WindowManager.h" />

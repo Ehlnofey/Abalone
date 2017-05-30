@@ -6,6 +6,7 @@
 #include "AbaloneBoard.h"
 #include "minimax.h"
 #include "SelectPlayerInterface.h"
+#include "SelectBoardInterface.h"
 
 
 int handle_EVENT(void* handler, Event *e)
@@ -51,6 +52,34 @@ void playGame(AbaloneBoard *ab, EventManager *em, TextureManager *tm,GameMode gm
 	}
 }
 
+void selectPlayerMenu(EventManager *em, SelectPlayerInterface *spi, int *changeGameMode)
+{
+	if (spi->gameMode == NO_GAME_MODE)
+		drawSelectPlayerInterface(spi, em);
+	else if (*changeGameMode == 0)
+		*changeGameMode = 1;
+}
+
+void selectBoardMenu(EventManager *em, SelectBoardInterface *sbi, int *changeBoardType, int(**selectedBoard)[9][9])
+{
+	if (sbi->boardType == NO_BOARD_TYPE)
+		drawSelectBoardInterface(sbi, em);
+	else if (*changeBoardType == 0)
+	{
+		*changeBoardType = 1;
+
+		switch (sbi->boardType)
+		{
+		case BELGIAN_DAISY_BOARD:
+			*selectedBoard = &belgianDaisyBoard;
+			break;
+		default:
+			*selectedBoard = &defaultBoard;
+			break;
+		}
+	}
+}
+
 int main(int argc, char * argv[])
 {
 	EventManager myEM;
@@ -58,11 +87,12 @@ int main(int argc, char * argv[])
 	TextureManager *tm;
 	AbaloneBoard *ab = NULL;
 	SelectPlayerInterface *spi;
+	SelectBoardInterface *sbi = NULL;
 	EvalWeights evalWeightsD, evalWeightsA;
 	int cnt = 1;
 	int iaPlay = 1;
-	int changeGameMode = 0;
-	int (*selectedBoard)[9][9] = &defaultBoard;
+	int changeGameMode = 0, changeBoardType = 0;
+	int (*selectedBoard)[9][9] = &belgianDaisyBoard;
 	
 	initEventManager(&myEM);
 	addCallback(&myEM, &handle_EVENT, SDL_EVENT, &iaPlay);
@@ -87,12 +117,18 @@ int main(int argc, char * argv[])
 	while (mainEvent(&myEM) == 1 && cnt)
 	{
 		mainWindow(&myEM,myWindow);
-		if (spi->gameMode == NO_GAME_MODE)
-			drawSelectPlayerInterface(spi, &myEM);
-		else if (changeGameMode == 0)
+		if (changeGameMode == 0)
 		{
-			changeGameMode = 1;
-			startGame(&ab, &myEM, myWindow->ren, tm, selectedBoard);
+			selectPlayerMenu(&myEM, spi, &changeGameMode);
+		}
+		else if (changeBoardType == 0)
+		{
+			if(sbi==NULL)
+				sbi = newSelectBoardInterface(tm, myWindow->ren, &myEM);
+
+			selectBoardMenu(&myEM,sbi,&changeBoardType,&selectedBoard);
+			if(changeBoardType==1)
+				startGame(&ab, &myEM, myWindow->ren, tm, selectedBoard);
 		}
 		else 
 			playGame(ab, &myEM, tm, spi->gameMode, &start, &iaPlay, &cnt, &evalWeightsA, &evalWeightsD);

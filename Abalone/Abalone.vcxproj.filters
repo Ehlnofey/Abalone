@@ -81,6 +81,9 @@
     <ClCompile Include="Button.c">
       <Filter>Fichiers sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="SelectBoardInterface.c">
+      <Filter>Fichiers sources\Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventManager.h">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Fichiers d%27en-tête\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectBoardInterface.h">
+      <Filter>Fichiers d%27en-tête\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,9 +1,13 @@
 #include "SelectPlayerInterface.h"
 #include "Button.h"
 
-int handleClick(void *handler, Event *e)
+int handleClick_SelectPlayerInterface(void *handler, Event *e)
 {
 	SelectPlayerInterface *spi = (SelectPlayerInterface*)handler;
+
+	if (spi->gameMode != NO_GAME_MODE)
+		return 0;
+
 	SDL_Event *evt = (SDL_Event*)(e->data);
 
 	if (evt->type == SDL_MOUSEBUTTONUP&&evt->button.button == SDL_BUTTON_LEFT)
@@ -33,7 +37,7 @@ SelectPlayerInterface * newSelectPlayerInterface(TextureManager *tm, SDL_Rendere
 
 	spi->gameMode = NO_GAME_MODE;
 
-	addCallback(em, handleClick, SDL_EVENT, spi);
+	addCallback(em, handleClick_SelectPlayerInterface, SDL_EVENT, spi);
 
 	return spi;
 }
