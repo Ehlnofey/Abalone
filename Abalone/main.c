@@ -6,15 +6,15 @@
 #include "AbaloneBoard.h"
 #include "minimax.h"
 
-int iaPlay = 1;
 
-int handle_EVENT(Event *e)
+int handle_EVENT(void* handler, Event *e)
 {
+	int *iaPlay = (int*)(handler);
 	SDL_Event *evt = (SDL_Event*)(e->data);
 
 	if (evt->type == SDL_KEYDOWN)
 		if (evt->key.keysym.sym == (SDL_Keycode)SDLK_p)
-			iaPlay = 0;
+			*iaPlay = 0;
 
 	return 0;
 }
@@ -27,9 +27,10 @@ int main(int argc, char * argv[])
 	AbaloneBoard *ab;
 	EvalWeights evalWeightsD, evalWeightsA;
 	int cnt = 1;
+	int iaPlay = 1;
 	
 	initEventManager(&myEM);
-	addCallback(&myEM, &handle_EVENT, SDL_EVENT);
+	addCallback(&myEM, &handle_EVENT, SDL_EVENT, &iaPlay);
 	myWindow = buildWindow(&myEM, WINDOW_HEIGHT, WINDOW_WIDTH, "Test !");
 	tm = newTextureManager();
 	ab = newAbaloneBoard(&myEM,myWindow->ren, tm, 14, 14);

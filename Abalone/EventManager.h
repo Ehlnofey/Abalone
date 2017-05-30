@@ -12,7 +12,7 @@ typedef struct EventManager
 
 void initEventManager(EventManager *em);
 int mainEvent(EventManager *em);
-void addCallback(EventManager *em, int(*handle)(Event*e), enum EVENT_CODE code);
+void addCallback(EventManager *em, int(*handle)(void*, Event*), enum EVENT_CODE code, void* handler);
 void pushEvent(Event e);
 void deleteEvent(EventManager *em);
 void deleteCallback(EventManager *em);

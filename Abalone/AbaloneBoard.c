@@ -29,8 +29,7 @@ int belgianDaisyBoard[SIZE][SIZE] = {
 	{ OUT_ZONE, OUT_ZONE, OUT_ZONE, OUT_ZONE, WHITE, WHITE, NO_BALL, BLACK, BLACK }
 };
 
-AbaloneBoard *getAbaloneBoard(AbaloneBoard *ab);
-int handleClik(Event *e);
+int handleClik(void* handler, Event *e);
 
 AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManager *tm, int blackBallCount, int whiteBallCount)
 {
@@ -51,9 +50,7 @@ AbaloneBoard * newAbaloneBoard(EventManager *em, SDL_Renderer *ren, TextureManag
 
 	getDrawable(ren, "./Image/selectedBall.png", 0, 0);
 
-	getAbaloneBoard(ab);
-
-	addCallback(em, handleClik, SDL_EVENT);
+	addCallback(em, handleClik, SDL_EVENT, ab);
 
 	return ab;
 }
@@ -268,11 +265,11 @@ int isCorrectForXAlign(int x[3], int y[3], int size)
 	return 0;
 }
 
-int handleClik(Event * e)
+int handleClik(void* handler, Event * e)
 {
 	int i = 0, j = 0, x = 0, y = 0, wc = 0, bc = 0;
 	SDL_Event *evt = (SDL_Event*)(e->data);
-	AbaloneBoard *ab = getAbaloneBoard(NULL);
+	AbaloneBoard *ab = (AbaloneBoard*) handler;
 
 	if (evt->type == SDL_MOUSEBUTTONUP&&evt->button.button==SDL_BUTTON_LEFT)
 	{
@@ -297,10 +294,9 @@ int handleClik(Event * e)
 	return 0;
 }
 
-int getOpponentBallsCount(int ox, int oy, int dx, int dy, int color)
+int getOpponentBallsCount(AbaloneBoard *ab, int ox, int oy, int dx, int dy, int color)
 {
 	int c = 0;
-	AbaloneBoard *ab = getAbaloneBoard(NULL);
 
 	if (color == BLACK)
 		color = WHITE;
@@ -654,12 +650,4 @@ void isLeftCliked(AbaloneBoard *ab, int x, int y)
 #endif
 		}
 	}
-}
-
-AbaloneBoard * getAbaloneBoard(AbaloneBoard * ab)
-{
-	static AbaloneBoard *m_ab = NULL;
-	if (m_ab == NULL)
-		m_ab = ab;
-	return m_ab;
 }

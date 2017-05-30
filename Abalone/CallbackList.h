@@ -7,7 +7,8 @@ typedef struct CallbackList
 {
 	struct CallbackList* next;
 	struct CallbackList* previous;
-	int(*handle)(Event *e);
+	int(*handle)(void *, Event *);
+	void *handler;
 	enum EVENT_CODE code;
 }CallbackList;
 

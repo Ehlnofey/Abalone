@@ -36,7 +36,7 @@ int mainEvent(EventManager *em)
 	while (it != NULL)
 	{
 		if (it->code == EVER)
-			(*it->handle)(NULL);
+			(*it->handle)(it->handle,NULL);
 		it = it->next;
 	}
 	while (el != NULL)
@@ -48,7 +48,7 @@ int mainEvent(EventManager *em)
 		{
 			if (cbl->handle != NULL && cbl->code == el->event.code)
 			{
-				if ((*cbl->handle)(&el->event) == 1)
+				if ((*cbl->handle)(cbl->handler, &el->event) == 1)
 					cbl = NULL;
 				else
 					cbl = cbl->next;
@@ -66,12 +66,13 @@ int mainEvent(EventManager *em)
 	return run;
 }
 
-void addCallback(EventManager *em, int(*handle)(Event*e), enum EVENT_CODE code)
+void addCallback(EventManager *em, int(*handle)(void*,Event*), enum EVENT_CODE code, void*handler)
 {
 	if (em->cl.handle == NULL)
 	{
 		em->cl.handle = handle;
 		em->cl.code = code;
+		em->cl.handler = handler;
 	}
 	else
 	{
@@ -79,6 +80,7 @@ void addCallback(EventManager *em, int(*handle)(Event*e), enum EVENT_CODE code)
 
 		cl->handle = handle;
 		cl->code = code;
+		cl->handler = handler;
 
 		CallbackList *it = &em->cl;
 		while (it->next != NULL)

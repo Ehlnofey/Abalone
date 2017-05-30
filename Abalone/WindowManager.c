@@ -11,7 +11,7 @@ BuildedWindow* buildWindow(EventManager *em, int h, int w, char * windowName)
 	b->win = SDL_CreateWindow(windowName, 100, 100, w, h, SDL_WINDOW_SHOWN);
 	b->ren = SDL_CreateRenderer(b->win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	addCallback(em, draw, DRAW);
+	addCallback(em, draw, DRAW,b);
 
 	return b;
 }
@@ -26,7 +26,7 @@ void deleteWindow(BuildedWindow *b)
 }
 
 
-int draw(Event *e)
+int draw(void *handler, Event *e)
 {
 	Drawable *drawable = (Drawable*)e->data;
 

@@ -13,7 +13,7 @@ typedef struct BuildedWindow
 
 BuildedWindow* buildWindow(EventManager *em,int h, int w,char *windowName);
 void deleteWindow(BuildedWindow *b);
-int draw(Event *e);
+int draw(void *handler, Event *e);
 void mainWindow(EventManager *em, BuildedWindow *b);
 
 #endif // !WINDOW_MANAGER_H
