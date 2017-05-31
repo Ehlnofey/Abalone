@@ -12,11 +12,11 @@ typedef struct Matrix
 
 Matrix* newEmptyMatrix();
 
-Matrix* newMatrix(unsigned int size);
+Matrix* newMatrix(unsigned int size, ...);
 
 void copyMatrix(Matrix *src, Matrix *dst);
 
-int lengthMatrix(Matrix *m);
+unsigned int lengthMatrix(Matrix *m);
 
 double firstMatrix(Matrix *m);
 
@@ -24,7 +24,7 @@ double lastMatrixElement(Matrix *m);
 
 void applyMatrixElement(void(*f)(double *), Matrix *m);
 
-double getMatrixElement(unsigned int index, Matrix *m);
+double getMatrixElement(Matrix *m, unsigned int index);
 
 void deleteMatrix(Matrix *m);
 

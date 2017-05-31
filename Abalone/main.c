@@ -135,7 +135,14 @@ int main(int argc, char * argv[])
 	}
 
 	if (cnt == 0)
-		system("pause");
+	{
+		setDrawableCoord(ab, tm);
+		drawBoard(ab, &myEM);
+		mainWindow(&myEM, myWindow);
+		mainEvent(&myEM);
+
+		getchar();
+	}
 
 	if(ab!=NULL)
 		deleteAdaloneBoard(ab);
