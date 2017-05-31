@@ -157,8 +157,11 @@
     <ClCompile Include="Event.c" />
     <ClCompile Include="EventManager.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="Matrix.c" />
+    <ClCompile Include="Matrix2D.c" />
     <ClCompile Include="minimax.c" />
     <ClCompile Include="MinimaxThreaded.c" />
+    <ClCompile Include="Network.c" />
     <ClCompile Include="SelectBoardInterface.c" />
     <ClCompile Include="SelectPlayerInterface.c" />
     <ClCompile Include="TextureManager.c" />
@@ -170,8 +173,11 @@
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="CallbackList.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Matrix2D.h" />
     <ClInclude Include="minimax.h" />
     <ClInclude Include="MinimaxThreaded.h" />
+    <ClInclude Include="Network.h" />
     <ClInclude Include="SelectBoardInterface.h" />
     <ClInclude Include="SelectPlayerInterface.h" />
     <ClInclude Include="TextureManager.h" />

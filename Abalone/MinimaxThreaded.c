@@ -14,7 +14,7 @@ void* minimaxthreaded(void *arg)
 #ifdef SHOW_TIME
 	start = clock();
 #endif
-	BestMove *b = minimax(m->ia, m->deep, m->max, -10000000, 10000000);
+	BestMove *b = minimax(m->ia, m->deep, m->max);
 #ifdef SHOW_TIME
 	printf("tmps fct thread : %dms\n", clock() - start);
 #endif
@@ -22,7 +22,7 @@ void* minimaxthreaded(void *arg)
 
 	pthread_exit(b);
 
-	return NULL;
+	return b;
 }
 MinimaxThreadStruct * newMinimaxThreadStruct(IA * ia, int deep, int max)
 {

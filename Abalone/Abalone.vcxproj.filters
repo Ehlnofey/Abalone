@@ -90,6 +90,15 @@
     <ClCompile Include="SelectBoardInterface.c">
       <Filter>Fichiers sources\Interface</Filter>
     </ClCompile>
+    <ClCompile Include="Matrix.c">
+      <Filter>Fichiers sources\NeuralNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix2D.c">
+      <Filter>Fichiers sources\NeuralNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.c">
+      <Filter>Fichiers sources\NeuralNetwork</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventManager.h">
@@ -124,6 +133,15 @@
     </ClInclude>
     <ClInclude Include="SelectBoardInterface.h">
       <Filter>Fichiers d%27en-tête\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Fichiers d%27en-tête\NeuralNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix2D.h">
+      <Filter>Fichiers d%27en-tête\NeuralNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Fichiers d%27en-tête\NeuralNetwork</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
