@@ -47,12 +47,14 @@ typedef struct IA {
 	Ball whiteBalls[NB_BALLS];
 	Ball blackBalls[NB_BALLS];
 	EvalWeights* evalWeights;
+	signed char nbWhiteBalls;
+	signed char nbBlackBalls;
 } IA;
 
 IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights);
 void copy_ia(IA* src, IA* dst);
 void free_ia(IA* ia);
-BestMove* minimax(IA* ia, int deep, int color, int alpha, int beta);
+BestMove* minimax(IA* ia, int deep, int color);
 void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeights, int deep, int thread);
 void print_board(IA* ia);
 int eval(IA* ia);
@@ -75,4 +77,5 @@ void perform_move(IA* ia, Move* move);
 void move_ball(IA* ia, signed char bx, signed char by, signed char tox, signed char toy, int player);
 void remove_ball(IA *ia, signed char bx, signed char by, int player);
 Ball* get_balls(IA *ia, int player);
+signed char get_nb_balls(IA *ia, int player);
 #endif

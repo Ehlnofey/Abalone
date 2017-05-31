@@ -63,6 +63,8 @@ IA* new_ia(AbaloneBoard* abalone, EvalWeights* evalWeights) {
 
 	ia->turn = abalone->turn;
 	ia->evalWeights = evalWeights;
+	ia->nbBlackBalls = b;
+	ia->nbWhiteBalls = w;
 
 	return ia;
 }
@@ -117,6 +119,8 @@ void copy_ia(IA* src, IA* dst) {
 		dst->blackBalls[i].onBoard = src->blackBalls[i].onBoard;
 	}
 
+	dst->nbBlackBalls = src->nbBlackBalls;
+	dst->nbWhiteBalls = src->nbWhiteBalls;
 	dst->evalWeights = src->evalWeights;
 	dst->turn = src->turn;
 }
@@ -125,44 +129,52 @@ int eval(IA* ia) {
 	int i, j;
 
 	j = 0;
-	Ball* ball = get_balls(ia, ia->turn);
+	Ball* balls = get_balls(ia, ia->turn);
 
-	for (i = 0; i < NB_BALLS; i++) {
-		if (ball[i].onBoard) {
-			j -= abs(ball[i].x - 4) + abs(ball[i].y - 4) * ia->evalWeights->center;
+	if (get_nb_balls(ia, ia->turn) == 8) {
+		return -10000000;
+	}
+	else if (get_nb_balls(ia, -ia->turn) == 8) {
+		return 10000000;
+	}
+	else {
+		for (i = 0; i < NB_BALLS; i++) {
+			if (balls[i].onBoard) {
+				j -= abs(balls[i].x - 4) + abs(balls[i].y - 4) * ia->evalWeights->center;
 
-			if (
-				get(ia, ball[i].x + 1, ball[i].y) == ia->turn
-				&& get(ia, ball[i].x - 1, ball[i].y) == ia->turn
-				&& get(ia, ball[i].x, ball[i].y + 1) == ia->turn
-				&& get(ia, ball[i].x, ball[i].y - 1) == ia->turn
-				&& get(ia, ball[i].x + 1, ball[i].y + 1) == ia->turn
-				&& get(ia, ball[i].x - 1, ball[i].y - 1) == ia->turn) {
+				if (
+					get(ia, balls[i].x + 1, balls[i].y) == ia->turn
+					&& get(ia, balls[i].x - 1, balls[i].y) == ia->turn
+					&& get(ia, balls[i].x, balls[i].y + 1) == ia->turn
+					&& get(ia, balls[i].x, balls[i].y - 1) == ia->turn
+					&& get(ia, balls[i].x + 1, balls[i].y + 1) == ia->turn
+					&& get(ia, balls[i].x - 1, balls[i].y - 1) == ia->turn) {
 
-				j += ia->evalWeights->grouping;
+					j += ia->evalWeights->grouping;
+				}
+			}
+			else {
+				j -= ia->evalWeights->defend;
 			}
 		}
-		else {
-			j -= ia->evalWeights->defend;
+
+		balls = get_balls(ia, -(ia->turn));
+
+		for (i = 0; i < NB_BALLS; i++) {
+			if (balls[i].onBoard) {
+				j += abs(balls[i].x - 4) + abs(balls[i].y - 4) * ia->evalWeights->center;
+			}
+			else {
+				j += ia->evalWeights->attack;
+			}
 		}
+
+		return j;
 	}
-
-	ball = get_balls(ia, -(ia->turn));
-
-	for (i = 0; i < NB_BALLS; i++) {
-		if (ball[i].onBoard) {
-			j += abs(ball[i].x - 4) + abs(ball[i].y - 4) * ia->evalWeights->center;
-		}
-		else {
-			j += ia->evalWeights->attack;
-		}
-	}
-
-	return j;
 }
 
-BestMove* minimax(IA* ia, int deep, int color, int alpha, int beta) {
-	if (deep == 0) {
+BestMove* minimax(IA* ia, int deep, int color) {
+	if (deep == 0 || get_nb_balls(ia, ia->turn) == 8 || get_nb_balls(ia, -ia->turn) == 8) {
 		BestMove *r = malloc(sizeof(BestMove));
 
 		r->score = eval(ia) * color;
@@ -186,7 +198,7 @@ BestMove* minimax(IA* ia, int deep, int color, int alpha, int beta) {
 			copy_ia(ia, copy);
 			perform_move(copy, current->value);
 			copy->turn = -(copy->turn);
-			BestMove* r = minimax(copy, deep - 1, -color, -beta, -alpha);
+			BestMove* r = minimax(copy, deep - 1, -color);
 			r->score = -r->score;
 
 			if (r->score > best->score) {
@@ -198,18 +210,6 @@ BestMove* minimax(IA* ia, int deep, int color, int alpha, int beta) {
 				best->move.sx = current->value->sx;
 				best->move.sy = current->value->sy;
 				best->move.nb = current->value->nb;
-
-				if (r->score < alpha) {
-					alpha = r->score;
-
-					if (alpha >= beta) {
-						free_ia(copy);
-						free_moves(moves);
-						free(r);
-
-						return best;
-					}
-				}
 			}
 
 			free(r);
@@ -230,7 +230,7 @@ void start_ia(AbaloneBoard* abalone, EvalWeights* evalWeight, int deep, int thre
 	if (thread)
 		r = minimaxWithThread(ia, deep, -1);
 	else
-		r = minimax(ia, deep, -1, -10000000, 10000000);
+		r = minimax(ia, deep, -1);
 
 	printf("%d : (%c %d:%c %d) -> %c %d (%d)\n",
 		r->score,
@@ -576,6 +576,14 @@ void remove_ball(IA *ia, signed char bx, signed char by, int player) {
 	for (i = 0; i < NB_BALLS; i++) {
 		if (current[i].x == bx && current[i].y == by) {
 			current[i].onBoard = 0;
+
+			if (player == WHITE) {
+				ia->nbWhiteBalls--;
+			}
+			else {
+				ia->nbBlackBalls--;
+			}
+
 			break;
 		}
 	}
@@ -587,5 +595,15 @@ Ball* get_balls(IA *ia, int player) {
 	}
 	else {
 		return ia->blackBalls;
+	}
+}
+
+
+signed char get_nb_balls(IA *ia, int player) {
+	if (player == WHITE) {
+		return ia->nbWhiteBalls;
+	}
+	else {
+		return ia->nbBlackBalls;
 	}
 }
