@@ -49,6 +49,12 @@
     <Filter Include="Fichiers sources\Interface">
       <UniqueIdentifier>{e79ef126-569d-43ac-9740-787d2a0756c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\NeuralNetwork">
+      <UniqueIdentifier>{cf0d4c83-1481-4d03-97a6-29dbf48e04e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\NeuralNetwork">
+      <UniqueIdentifier>{eda1d1a7-4d83-4e32-add5-45fae78364fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">

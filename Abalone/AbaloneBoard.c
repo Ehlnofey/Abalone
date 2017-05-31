@@ -20,7 +20,7 @@ int defaultBoard[SIZE][SIZE] = {
 int belgianDaisyBoard[SIZE][SIZE] = {
 	{ BLACK, BLACK, NO_BALL, WHITE, WHITE, OUT_ZONE, OUT_ZONE, OUT_ZONE, OUT_ZONE },
 	{ BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, OUT_ZONE, OUT_ZONE, OUT_ZONE },
-	{ BLACK, BLACK, NO_BALL, NO_BALL, WHITE, WHITE, NO_BALL, OUT_ZONE, OUT_ZONE },
+	{ NO_BALL, BLACK, BLACK, NO_BALL, WHITE, WHITE, NO_BALL, OUT_ZONE, OUT_ZONE },
 	{ NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, OUT_ZONE },
 	{ NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL },
 	{ OUT_ZONE, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL, NO_BALL },
@@ -425,6 +425,8 @@ int canBroadMove(AbaloneBoard *ab, int x, int y)
 
 		ab->dxj = x - ab->x[0];
 		ab->dyj = y - ab->y[0];
+
+		allow = allow && (sign(ab->dxj) == sign(ab->dyj) || ab->dxj == 0 || ab->dyj == 0);
 
 		for (j = 0;j < ab->selectedBalls && allow;j++)
 			if (ab->x[j] + ab->dxj < SIZE && ab->x[j] + ab->dxj >= 0 && ab->y[j] + ab->dyj < SIZE && ab->y[j] + ab->dyj >= 0)
