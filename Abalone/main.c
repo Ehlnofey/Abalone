@@ -34,9 +34,9 @@ void playGame(AbaloneBoard *ab, EventManager *em, TextureManager *tm,GameMode gm
 	if (clock() - *start > 1 && *iaPlay)
 	{
 		if (ab->turn == BLACK && gm == IA_VS_IA)
-			start_ia(ab, blackEW, 3, 0);
+			start_ia(ab, blackEW, 4, 0);
 		else if (ab->turn == WHITE && (gm == IA_VS_IA || gm == PLAYER_VS_IA))
-			start_ia(ab, whiteEW, 3, 0);
+			start_ia(ab, whiteEW, 4, 0);
 		*start = clock();
 	}
 	switch (someoneWin(ab))

@@ -18,8 +18,8 @@ void* minimaxthreaded(void *arg)
 #ifdef SHOW_TIME
 	printf("tmps fct thread : %dms\n", clock() - start);
 #endif
+	free(m->ia);
 	free(m);
-
 	pthread_exit(b);
 
 	return b;
@@ -35,9 +35,7 @@ MinimaxThreadStruct * newMinimaxThreadStruct(IA * ia, int deep, int max)
 ThreadList * newThreadList()
 {
 	ThreadList* tl = malloc(sizeof(ThreadList));
-	tl->b = NULL;
 	tl->next = NULL;
-	tl->value = NULL;
 	return tl;
 }
 void deepDeleteThreadList(ThreadList * tl)
@@ -51,11 +49,11 @@ void deepDeleteThreadList(ThreadList * tl)
 	}
 }
 
-BestMove* minimaxWithThread(IA* ia, int deep, int max) {
-	if (deep == 0) {
+BestMove* minimaxWithThread(IA* ia, int deep, int color) {
+	if (deep == 0 || get_nb_balls(ia, ia->turn) == 8 || get_nb_balls(ia, -ia->turn) == 8) {
 		BestMove *r = malloc(sizeof(BestMove));
 
-		r->score = eval(ia);
+		r->score = eval(ia) * color;
 		return r;
 	}
 	else {
@@ -67,7 +65,7 @@ BestMove* minimaxWithThread(IA* ia, int deep, int max) {
 		copy = (IA*)malloc(sizeof(IA));
 		assert(copy != NULL);
 
-		best->score = (max) ? -10000000 : 10000000;
+		best->score = -10000000;
 		moves = selection(ia);
 		current = moves;
 
@@ -77,24 +75,25 @@ BestMove* minimaxWithThread(IA* ia, int deep, int max) {
 		clock_t start;
 		start = clock();
 #endif
+		
+		threadIndex = newThreadList();
+		currentThread = threadIndex;
+		
 		while (current != NULL) {
+			copy = (IA*)malloc(sizeof(IA));
+			assert(copy != NULL);
 			copy_ia(ia, copy);
 			perform_move(copy, current->value);
 			copy->turn = -(copy->turn);
 
-			if (threadIndex == NULL)
-			{
-				threadIndex = newThreadList();
-				currentThread = threadIndex;
-			}
 
 			currentThread->next = newThreadList();
 			currentThread = currentThread->next;
-			currentThread->value = current->value;
+			currentThread->value = *current->value;
 
-			pthread_create(&currentThread->id, NULL, minimaxthreaded, newMinimaxThreadStruct(copy, deep - 1, !max));
+			pthread_create(&currentThread->id, NULL, minimaxthreaded, newMinimaxThreadStruct(copy, deep - 1, -color));
 
-			//BestMove r = minimax(copy2, deep - 1, !max);
+			//BestMove r = minimax(copy2, deep - 1, -color);
 
 			current = current->next;
 		}
@@ -103,25 +102,19 @@ BestMove* minimaxWithThread(IA* ia, int deep, int max) {
 #endif
 		currentThread = threadIndex->next;
 		while (currentThread != NULL) {
-			pthread_join(currentThread->id, &currentThread->b);
-			if (max && currentThread->b->score > best->score || !max && currentThread->b->score < best->score) {
-				best->score = currentThread->b->score;
-				best->move.bx = currentThread->value->bx;
-				best->move.by = currentThread->value->by;
-				best->move.mx = currentThread->value->mx;
-				best->move.my = currentThread->value->my;
-				best->move.sx = currentThread->value->sx;
-				best->move.sy = currentThread->value->sy;
-				best->move.nb = currentThread->value->nb;
+			BestMove *b = NULL;
+			pthread_join(currentThread->id, &b);
+			b->score *= -1;
+			if (b->score > best->score) {
+				best->score = b->score;
+				best->move = currentThread->value;
 			}
-			free(currentThread->b);
+			free(b);
 			currentThread = currentThread->next;
 		}
 
 		deepDeleteThreadList(threadIndex);
 
-
-		free_ia(copy);
 		free_moves(moves);
 
 		return best;

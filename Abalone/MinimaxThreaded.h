@@ -11,8 +11,7 @@ typedef struct MinimaxThreadStruct
 typedef struct ThreadList
 {
 	pthread_t id;
-	BestMove *b;
-	Move *value;
+	Move value;
 	struct ThreadList *next;
 }ThreadList;
 
